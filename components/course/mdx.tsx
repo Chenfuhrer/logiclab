@@ -11,6 +11,7 @@ import { CodeLab } from "@/components/widgets/CodeLab";
 import { LevelsLab } from "@/components/widgets/LevelsLab";
 import { OCPullupLab } from "@/components/widgets/OCPullupLab";
 import { TimingCalc } from "@/components/widgets/TimingCalc";
+import { Timer555Lab } from "@/components/widgets/Timer555Lab";
 
 function text(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -49,4 +50,5 @@ export const mdxComponents: MDXComponents = {
   TimingCalc,
   ExperimentCard,
   Quiz,
+  Timer555Lab,
 };

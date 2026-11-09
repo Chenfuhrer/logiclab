@@ -85,6 +85,7 @@
 | `<ShiftRegisterLab />` | 无 | 74LS194 引脚级实验，含环形/扭环形预设 |
 | `<SeqDetectorDemo seq="101" kind="mealy" overlap={true} />` | `seq`、`kind`(`mealy`/`moore`)、`overlap` | 自动生成原始状态表与状态图，可跳转到设计向导 |
 | `<TimingCalc />` | 无 | f_max、建立/保持裕量计算 |
+| `<Timer555Lab mode="astable" />` | `mode`: `astable`（多谐振荡器）`monostable`（单稳态）`schmitt`（施密特触发器） | 555 内部结构（比较器 C1/C2、锁存器、放电管状态）+ 电容电压与输出波形 + 参数计算，**模型 E：教学近似模型** |
 | `<ExperimentCard id="jk-counter" />` | `id`: `jk-counter` `ls161` `fsm-designer` `logic` `sandbox` | 实验入口卡片 |
 | `<Quiz lesson="kmap" />` | `lesson` | 显示该课时题库中的全部题目（按基础/分析/设计分层），可提交判分。放在"分层练习"部分 |
 

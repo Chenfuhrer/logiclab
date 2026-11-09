@@ -20,11 +20,12 @@ import { exercises as e16 } from "./sequence-detector";
 import { exercises as e17 } from "./sync-analysis";
 import { exercises as e18 } from "./sync-design";
 import { exercises as e19 } from "./theorems";
-import { exercises as e20 } from "./timing";
-import { exercises as e21 } from "./triggering";
-import { exercises as e22 } from "./tristate-oc";
+import { exercises as e20 } from "./timer555";
+import { exercises as e21 } from "./timing";
+import { exercises as e22 } from "./triggering";
+import { exercises as e23 } from "./tristate-oc";
 
-export const ALL_EXERCISES: Exercise[] = [...e0, ...e1, ...e2, ...e3, ...e4, ...e5, ...e6, ...e7, ...e8, ...e9, ...e10, ...e11, ...e12, ...e13, ...e14, ...e15, ...e16, ...e17, ...e18, ...e19, ...e20, ...e21, ...e22];
+export const ALL_EXERCISES: Exercise[] = [...e0, ...e1, ...e2, ...e3, ...e4, ...e5, ...e6, ...e7, ...e8, ...e9, ...e10, ...e11, ...e12, ...e13, ...e14, ...e15, ...e16, ...e17, ...e18, ...e19, ...e20, ...e21, ...e22, ...e23];
 
 export function exercisesOf(lesson: string): Exercise[] {
   return ALL_EXERCISES.filter((e) => e.lesson === lesson);

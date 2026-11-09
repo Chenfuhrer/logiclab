@@ -116,7 +116,18 @@ export const CHAPTERS: Chapter[] = [
     title: "脉冲波形的产生与整形",
     en: "Pulse Circuits",
     outline: ["施密特触发器", "单稳态触发器", "多谐振荡器", "555 定时器", "脉冲宽度、振荡频率、占空比"],
-    lessons: [{ id: "timer555", title: "555 定时器", summary: "内部比较器与 RS 触发器、多谐振荡器的电容电压波形（教学近似模型）。", status: "planned", prereqs: ["latches"], knowledge: ["555"] }],
+    lessons: [
+      {
+        id: "timer555",
+        title: "555 定时器：施密特、单稳态与多谐振荡",
+        summary: "两个比较器 + 一个锁存器 + 一个放电管；用 RC 指数规律算出回差、脉宽与振荡频率（教学近似模型）。",
+        status: "ready",
+        minutes: 50,
+        prereqs: ["latches"],
+        knowledge: ["555", "schmitt", "monostable", "astable"],
+        experiments: ["timer555"],
+      },
+    ],
   },
   {
     id: "ch8",
@@ -166,6 +177,7 @@ export const EXPERIMENTS = [
   { id: "jk-counter", href: "/lab/jk-counter", title: "实验 A · 同步三位二进制加法计数器", summary: "三个 JK 触发器，驱动方程由网表自动提取；单步/连续时钟、状态图、时序波形。", lesson: "sync-analysis" },
   { id: "ls161", href: "/lab/ls161", title: "实验 B · 74LS161 任意进制计数器", summary: "清零法与置数法、异步清零的瞬态、两片级联；以仿真测出实际模数。", lesson: "counters" },
   { id: "fsm-designer", href: "/lab/fsm-designer", title: "实验 C · 同步时序逻辑设计向导", summary: "从状态表或序列检测器模板出发，化简、编码、求方程、检查自启动并仿真验证。", lesson: "sync-design" },
+  { id: "timer555", href: "/lab/timer555", title: "实验 D · 555 定时器", summary: "施密特、单稳态、多谐振荡三种接法；内部比较器与放电管状态随时间可视化（模型 E 教学近似）。", lesson: "timer555" },
   { id: "logic", href: "/lab/logic", title: "逻辑工作台", summary: "表达式 ↔ 真值表 ↔ 卡诺图 ↔ 逻辑图，自动化简与等价验证。", lesson: "kmap" },
   { id: "sandbox", href: "/lab/sandbox", title: "自由电路实验台", summary: "拖放元件、连线、四值仿真、波形与自动符号分析。", lesson: "sync-analysis" },
 ] as const;

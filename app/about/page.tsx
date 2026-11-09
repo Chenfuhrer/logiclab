@@ -9,7 +9,7 @@ const MODELS = [
   ["B", "四值逻辑模型", "0、1、X（未知）、Z（高阻）。未初始化状态为 X；三态总线按驱动解析，多个使能输出相反时为 X 并报冲突；OC/OD 输出线与，缺上拉时警告。X 采用“分别代入 0 和 1，结果一致才确定”的精确传播。", "已实现"],
   ["C", "事件驱动延迟模型", "事件队列 + delta 周期；采用传输延迟（transport delay），不吞窄脉冲。可观察冒险毛刺、纹波延迟、74LS161 异步清零瞬态、建立/保持时间违例（违例时触发器状态记为 X）。默认 tpd：门 10 ns、触发器与中规模器件 20 ns，为教学示意值。", "已实现"],
   ["D", "电气教学模型", "电平阈值、噪声容限、扇出、OC 上拉电阻范围、时序裕量。74LS 参数取自 TI SN74LS00 数据手册（⚠️待验证），74HC 为典型量级（⚠️待验证）。", "已实现（计算器）"],
-  ["E", "模拟近似模型", "555、RC 充放电、施密特触发器、DAC/ADC。必须标注“教学近似模型”。", "规划中"],
+  ["E", "模拟近似模型", "555 定时器：理想比较器与锁存器、放电管导通电阻为 0，RC 按指数规律充放电；解析公式与时间步进仿真在单元测试中相互校核。界面标注“教学近似模型”。DAC/ADC 尚未实现。", "555 已实现"],
 ];
 
 export default function AboutPage() {
@@ -80,7 +80,7 @@ export default function AboutPage() {
       <section className="space-y-3">
         <h2 className="font-[family-name:var(--font-cjk-serif)] text-xl font-bold">尚未完成</h2>
         <ul className="card p-4 text-sm text-ink-2 space-y-1.5 list-disc pl-8">
-          <li>第 7～11 章（555、存储器、PLD、ADC/DAC、Verilog）只有提纲，标为“规划中”。</li>
+          <li>第 8～11 章（存储器、PLD、ADC/DAC、Verilog）只有提纲，标为“规划中”。</li>
           <li>74LS148、153、283、85、160、162、290 等器件模型；独热码编码；不完全确定状态表的化简。</li>
           <li>Verilog：本平台没有 HDL 编译器，不执行也不声称执行 Verilog 仿真。</li>
           <li>AI 助手：需要在服务端配置 ANTHROPIC_API_KEY 才会启用；未配置时其余功能不受影响。</li>

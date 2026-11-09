@@ -22,6 +22,7 @@ export const LESSON_LOADERS: Record<string, () => Promise<{ default: ComponentTy
   "sync-analysis": () => import("./chapters/ch6/sync-analysis.mdx"),
   "sync-design": () => import("./chapters/ch6/sync-design.mdx"),
   "theorems": () => import("./chapters/ch2/theorems.mdx"),
+  "timer555": () => import("./chapters/ch7/timer555.mdx"),
   "timing": () => import("./chapters/ch6/timing.mdx"),
   "triggering": () => import("./chapters/ch5/triggering.mdx"),
   "tristate-oc": () => import("./chapters/ch3/tristate-oc.mdx"),

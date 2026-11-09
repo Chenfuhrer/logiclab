@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
 const lessons = [...readFileSync("content/lessons.generated.ts", "utf8").matchAll(/"([a-z0-9-]+)":/g)].map((m) => m[1]);
-const ROUTES = ["/", "/learn", "/lab", "/lab/logic", "/lab/jk-counter", "/lab/ls161", "/lab/fsm-designer", "/lab/sandbox", "/practice", "/review", "/about", "/learn/timer555", ...lessons.map((l) => `/learn/${l}`)];
+const ROUTES = ["/", "/learn", "/lab", "/lab/logic", "/lab/jk-counter", "/lab/ls161", "/lab/fsm-designer", "/lab/sandbox", "/lab/timer555", "/practice", "/review", "/about", "/learn/memory", ...lessons.map((l) => `/learn/${l}`)];
 
 function watchErrors(page: Page) {
   const errors: string[] = [];
@@ -78,7 +78,7 @@ test("课程：模式切换控制内容块，完成标记持久化", async ({ pa
   await page.reload();
   await expect(page.getByTestId("mark-done")).toContainText("已完成");
   await page.goto("/");
-  await expect(page.locator("header")).toContainText("1/23");
+  await expect(page.locator("header")).toContainText("1/24");
 });
 
 test("练习：表达式题按逻辑等价判分，答错进入错题本", async ({ page }) => {
@@ -96,4 +96,14 @@ test("主题切换 @mobile", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "切换深色/浅色主题" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
+
+test("555 实验：三种接法切换，多谐振荡器参数与公式一致", async ({ page }) => {
+  await page.goto("/lab/timer555");
+  await expect(page.getByText("模型 E · 教学近似模型")).toBeVisible();
+  await expect(page.getByText("60.0 %")).toBeVisible(); // R1=10k, R2=20k：(R1+R2)/(R1+2R2)
+  await page.getByRole("button", { name: "单稳态触发器" }).click();
+  await expect(page.getByText(/仿真测得脉宽/)).toBeVisible();
+  await page.getByRole("button", { name: "施密特触发器" }).click();
+  await expect(page.getByText("1.67 V").first()).toBeVisible();
 });
