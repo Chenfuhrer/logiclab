@@ -1,0 +1,270 @@
+## 学习目标
+
+- 熟记逻辑代数的基本公式（0-1 律、互补律、重叠律、交换律、结合律、分配律、反演律、还原律）。
+- 会证明并使用常用公式：吸收律、$A+\overline{A}B=A+B$、冗余项定理（包含律）及其推论。
+- 会使用代入定理、反演定理、对偶定理，区分"反函数"与"对偶式"。
+- 能用并项、吸收、消项、消因子、配项等方法化简表达式，并对每一步说出依据。
+
+## 前置知识
+
+- 上一课"逻辑运算与逻辑门"：七种运算的定义与真值表。
+- 运算优先级：非 > 与 > 或；有括号先算括号。
+
+## 实际问题
+
+一个控制条件写成 $Y=AB+\overline{A}C+BC$，直接实现需要 3 个与门、1 个或门和 1 个非门。能不能少用一个与门？只凭直觉删掉 $BC$ 是危险的——必须**证明**删掉后逻辑功能完全不变。逻辑代数的公式和定理就是做这种"等价变形"的工具，每一步都有依据，每一步都可以用真值表验证。
+
+## 直观解释
+
+<Mode show="basic">
+
+可以用"开关电路"来理解几条公式：
+
+- **吸收律** $A+AB=A$：开关 $A$ 与"$A$、$B$ 串联"再并联。只要 $A$ 闭合灯就亮；$A$ 断开时串联支路也断开。所以那条串联支路是多余的。
+- **$A+\overline{A}B=A+B$**：$A$ 闭合时灯已经亮了；$A$ 断开时 $\overline{A}=1$，灯亮与否只看 $B$。所以 $\overline{A}$ 这个"因子"是多余的。
+- **冗余项定理** $AB+\overline{A}C+BC=AB+\overline{A}C$：$BC=1$ 时，$A$ 要么是 1（$AB$ 已经为 1），要么是 0（$\overline{A}C$ 已经为 1），所以 $BC$ 永远"帮不上忙"。
+
+</Mode>
+
+<Mode show="deep">
+
+逻辑代数（布尔代数）是一个满足交换律、分配律、0-1 律、互补律的代数系统，其余公式都可以由这几条公理推出。和普通代数相比有两个显著不同：
+
+1. **两条分配律都成立**：$A(B+C)=AB+AC$，并且 $A+BC=(A+B)(A+C)$；后者在普通代数中不成立。
+2. **没有减法和除法**：不能从 $A+B=A+C$ 推出 $B=C$（例如 $A=1$ 时任何 $B$、$C$ 都满足），也不能从 $AB=AC$ 推出 $B=C$。所以化简时不能"两边消去"。
+
+由于每个变量只有 0、1 两种取值，**任何等式都可以用真值表穷举证明**。下面的推导组件正是这样做的：每一步都由求解器与上一步比较全部取值组合。
+
+</Mode>
+
+<Mode show="exam">
+
+考试中本课通行题型：① 用公式法化简到最简与或式；② 求反函数（反演定理）或对偶式；③ 证明等式。化简题建议按"并项 → 吸收 → 消项 → 消因子 → 配项"的顺序尝试，并且写出每一步所用的公式名称，便于得过程分。
+
+</Mode>
+
+## 基本原理
+
+<Callout type="model" title="当前模型：逻辑层 / 理想模型">
+本课所有等式都是逻辑等价：两式在全部取值组合下结果相同。逻辑等价的两个电路在理想模型下功能相同；在带延迟模型下它们的瞬态行为可能不同（例如去掉冗余项可能引入冒险，见第 4 章"竞争与冒险"）。
+</Callout>
+
+### 基本公式
+
+$$
+\begin{array}{l|l|l}
+\text{名称} & \text{公式} & \text{对偶形式} \\ \hline
+\text{0-1 律} & A\cdot 0 = 0,\ A\cdot 1 = A & A+1=1,\ A+0=A \\
+\text{互补律} & A\overline{A}=0 & A+\overline{A}=1 \\
+\text{重叠律} & AA=A & A+A=A \\
+\text{交换律} & AB=BA & A+B=B+A \\
+\text{结合律} & A(BC)=(AB)C & A+(B+C)=(A+B)+C \\
+\text{分配律} & A(B+C)=AB+AC & A+BC=(A+B)(A+C) \\
+\text{反演律} & \overline{AB}=\overline{A}+\overline{B} & \overline{A+B}=\overline{A}\,\overline{B} \\
+\text{还原律} & \overline{\overline{A}}=A &
+\end{array}
+$$
+
+反演律（德·摩根定理）可推广到多个变量：$\overline{ABC}=\overline{A}+\overline{B}+\overline{C}$，$\overline{A+B+C}=\overline{A}\,\overline{B}\,\overline{C}$。
+
+### 常用公式
+
+$$
+\begin{aligned}
+&(1)\ \ AB+A\overline{B}=A &&\text{（合并项）}\\
+&(2)\ \ A+AB=A,\quad A(A+B)=A &&\text{（吸收律）}\\
+&(3)\ \ A+\overline{A}B=A+B &&\text{（消因子）}\\
+&(4)\ \ AB+\overline{A}C+BC=AB+\overline{A}C &&\text{（冗余项定理 / 包含律）}\\
+&(5)\ \ AB+\overline{A}C+BCD=AB+\overline{A}C &&\text{（冗余项定理推论）}\\
+&(6)\ \ (A+B)(\overline{A}+C)(B+C)=(A+B)(\overline{A}+C) &&\text{（(4) 的对偶式）}
+\end{aligned}
+$$
+
+冗余项定理的识别要点：两项中**一个含 $A$、另一个含 $\overline{A}$**，把这两项中其余因子相乘（$B\cdot C$）得到的项，或者包含这个乘积的项（如 $BCD$），都是多余的。
+
+### 三个定理
+
+**代入定理**：在任何逻辑等式中，把某个变量处处替换为同一个逻辑式，等式仍成立。例如在 $\overline{A+B}=\overline{A}\,\overline{B}$ 中把 $B$ 换成 $B+C$，立即得到三变量反演律 $\overline{A+B+C}=\overline{A}\,\overline{B}\,\overline{C}$。
+
+**反演定理**：求 $\overline{Y}$ 时，把 $Y$ 中所有"·"换成"+"、"+"换成"·"，0 换成 1、1 换成 0，原变量换成反变量、反变量换成原变量。须遵守两条规则：
+
+1. **保持原式的运算顺序**——原来先与后或，变换后要加括号保证先或后与；
+2. **不属于单个变量的长非号保持不变**（长非号下面的内容照样变换）。
+
+**对偶定理**：把 $Y$ 中的"·"与"+"互换、0 与 1 互换（**变量不取反**），得到对偶式 $Y^D$。若两式相等，则它们的对偶式也相等。上表"对偶形式"一列就是这样得到的，所以只需记一半公式。
+
+<Mode show="deep">
+
+**反演与对偶的关系**：对 $Y$ 求对偶式后再把每个变量取反，就得到 $\overline{Y}$。也就是说反演 = 对偶 + 变量取反。
+
+**为什么反演必须保持运算顺序**：$Y=AB+\overline{C}$ 的反函数是 $\overline{Y}=(\overline{A}+\overline{B})\,C$。如果漏掉括号写成 $\overline{A}+\overline{B}C$，它在 $A=0$、$C=0$ 时为 1，而真正的 $\overline{Y}$ 此时为 0（因为 $C=0$ 使 $\overline{C}=1$，$Y=1$）。
+
+**长非号的处理**：$Y=A+\overline{B+\overline{C}D}$。按规则，$A\to\overline{A}$，"+"变"·"，长非号保留、内部照样变换：
+
+$$\overline{Y}=\overline{A}\cdot\overline{\overline{B}\,(C+\overline{D})}$$
+
+再用反演律展开长非号：$\overline{\overline{B}(C+\overline{D})}=B+\overline{C}D$，所以 $\overline{Y}=\overline{A}\,(B+\overline{C}D)$，与直接对 $Y$ 取非的结果一致。
+
+</Mode>
+
+## 电路结构
+
+本课在逻辑层讨论代数变形，不涉及具体电路。化简的意义在电路上体现为：乘积项越少，所需与门越少；每项因子越少，与门的输入端越少。用这些表达式搭成电路的方法见"逻辑函数的标准形式"与第 4 章"组合逻辑的分析与设计"。
+
+## 逻辑推导
+
+下面的每一步都由求解器验证与上一步等价。点开每一步可以看到依据、适用条件和常见错误。
+
+### 推导 1：证明冗余项定理 $AB+\overline{A}C+BC=AB+\overline{A}C$
+
+<Derivation steps={[
+  { expr: "AB+A'C+BC" },
+  { expr: "AB+A'C+BC(A+A')", rule: "multiply-one", explain: "给多余的嫌疑项 BC 乘上 $A+\\overline{A}=1$，取值不变", condition: "任何乘积项都可以乘以 $X+\\overline{X}$；所选变量应是在另外两项中以原变量和反变量形式各出现一次的那个变量", pitfall: "随便选一个变量配项（比如乘 $B+\\overline{B}$）不会产生可合并的项，化简会越走越长" },
+  { expr: "AB+A'C+ABC+A'BC", rule: "distributive", explain: "用分配律展开 $BC(A+\\overline{A})=ABC+\\overline{A}BC$", condition: "分配律 $X(Y+Z)=XY+XZ$ 无条件成立", pitfall: "展开时漏掉 $\\overline{A}$ 上的非号" },
+  { expr: "AB(1+C)+A'C(1+B)", rule: "distributive", explain: "把 $ABC$ 并入 $AB$、把 $\\overline{A}BC$ 并入 $\\overline{A}C$，提取公因子", condition: "提取公因子是分配律的逆用，同时用到交换律调整因子顺序", pitfall: "把 $\\overline{A}BC$ 错并到 $AB$ 里——两者 $A$ 的取值相反，不含公因子 $AB$" },
+  { expr: "AB+A'C", rule: "identity", explain: "$1+C=1$、$1+B=1$，再由 $X\\cdot 1=X$ 得到结果", condition: "0-1 律 $1+X=1$ 无条件成立", pitfall: "写成 $1+C=C$ 或 $1+C=2$——逻辑或中 1 加任何量都是 1" },
+]} />
+
+结论的含义：$BC$ 被 $AB$ 与 $\overline{A}C$ "包含"了，可以直接删去。
+
+### 推导 2：证明 $A+\overline{A}B=A+B$
+
+<Derivation steps={[
+  { expr: "A+A'B" },
+  { expr: "(A+A')(A+B)", rule: "distributive", explain: "用第二分配律 $X+YZ=(X+Y)(X+Z)$，取 $X=A$、$Y=\\overline{A}$、$Z=B$", condition: "第二分配律只在逻辑代数中成立，普通代数中没有", pitfall: "初学者常因为普通代数中不成立而不敢用，或者把它误写成 $(A+\\overline{A})+(A+B)$" },
+  { expr: "1(A+B)", rule: "complement-law", explain: "$A+\\overline{A}=1$", condition: "互补律无条件成立", pitfall: "把 $A+\\overline{A}$ 写成 0（与 $A\\overline{A}=0$ 混淆）" },
+  { expr: "A+B", rule: "identity", explain: "$1\\cdot X=X$", condition: "0-1 律", pitfall: "无" },
+]} />
+
+### 推导 3：反演律与异或
+
+<Derivation steps={[
+  { expr: "(A'+B)'+(A+B')'" },
+  { expr: "A''B'+A'B''", rule: "demorgan", explain: "对两个长非号分别用 $\\overline{X+Y}=\\overline{X}\\,\\overline{Y}$", condition: "长非号覆盖整个或式时才能这样拆；拆开后或变与", pitfall: "拆开长非号时忘记把或变成与，写成 $\\overline{\\overline{A}}+\\overline{B}$" },
+  { expr: "AB'+A'B", rule: "involution", explain: "$\\overline{\\overline{A}}=A$，$\\overline{\\overline{B}}=B$", condition: "两层非号抵消", pitfall: "把 $\\overline{\\overline{A}}$ 看成 $\\overline{A}$，少算一层" },
+  { expr: "A⊕B", rule: "xor-def", explain: "$A\\overline{B}+\\overline{A}B$ 正是异或的定义", condition: "异或定义 $A\\oplus B=A\\overline{B}+\\overline{A}B$", pitfall: "与同或 $AB+\\overline{A}\\,\\overline{B}$ 混淆" },
+]} />
+
+### 推导 4：$AB+\overline{A}C+\overline{B}C$ 的化简
+
+这道题看上去像冗余项定理，但 $\overline{A}C$ 与 $\overline{B}C$ 不构成"一项含 $X$、另一项含 $\overline{X}$"的结构，需要换个思路——把含 $C$ 的两项合在一起。
+
+<Derivation steps={[
+  { expr: "AB+A'C+B'C" },
+  { expr: "AB+(A'+B')C", rule: "distributive", explain: "提取 $\\overline{A}C$ 与 $\\overline{B}C$ 的公因子 $C$", condition: "分配律逆用", pitfall: "提成 $(\\overline{A}\\,\\overline{B})C$——提公因子后括号内是或，不是与" },
+  { expr: "AB+(AB)'C", rule: "demorgan", explain: "$\\overline{A}+\\overline{B}=\\overline{AB}$，于是出现了 $X+\\overline{X}C$ 的结构，其中 $X=AB$", condition: "反演律逆用：两个反变量相或等于原变量相与再取非", pitfall: "写成 $\\overline{A}\\,\\overline{B}$（那是 $\\overline{A+B}$）" },
+  { expr: "AB+C", rule: "absorption", explain: "用 $X+\\overline{X}Y=X+Y$（代入 $X=AB$、$Y=C$）消去因子 $\\overline{AB}$", condition: "代入定理保证把 $X$ 换成 $AB$ 后公式仍成立", pitfall: "直接把 $\\overline{AB}C$ 删掉写成 $AB$——那是 $X+XY=X$，这里是 $X+\\overline{X}Y$，不能整项删除" },
+]} />
+
+## 交互实验
+
+在下面的表达式工具中输入 `AB+A'C+BC`，再输入 `AB+A'C`，比较两者的真值表和卡诺图，会发现完全相同；然后试试 `AB+A'C+B'C` 与 `AB+C`。
+
+<ExprLab initial="AB+A'C+BC" />
+
+<Mode show="deep">
+
+也可以在工具中检验反演规则：输入 `(A(B+C')+CD)'`，再输入按反演定理写出的 `(A'+B'C)(C'+D')`，两者的真值表应一致；若漏掉括号写成 `A'+B'C(C'+D')`，会看到若干行不同。
+
+</Mode>
+
+## 典型例题
+
+<Example title="例 1　公式法化简">
+化简 $Y=A\overline{B}+AB+\overline{A}B$ 为最简与或式。
+
+<Solution>
+
+$$
+\begin{aligned}
+Y&=A\overline{B}+AB+AB+\overline{A}B &&\text{（重叠律：把 }AB\text{ 写两次）}\\
+&=A(\overline{B}+B)+B(A+\overline{A}) &&\text{（分配律）}\\
+&=A+B &&\text{（互补律、0-1 律）}
+\end{aligned}
+$$
+
+技巧：一项需要与两项分别合并时，先用重叠律把它复制一份。
+
+</Solution>
+</Example>
+
+<Example title="例 2　消项与吸收">
+化简 $Y=\overline{A}B+AC+BC+\overline{A}BD$。
+
+<Solution>
+
+- $\overline{A}BD$ 含有 $\overline{A}B$ 的全部因子，由吸收律 $X+XD=X$ 删去；
+- $\overline{A}B$ 含 $\overline{A}$、$AC$ 含 $A$，其余因子之积为 $BC$，由冗余项定理删去 $BC$。
+
+$$Y=\overline{A}B+AC$$
+
+两项各含 2 个因子，无法再合并，是最简与或式。
+
+</Solution>
+</Example>
+
+<Example title="例 3　求反函数与对偶式">
+已知 $Y=A(B+\overline{C})+CD$，求 $\overline{Y}$ 与 $Y^D$。
+
+<Solution>
+
+**反函数**（"·"↔"+"、变量取反，保持运算顺序）：
+
+$$\overline{Y}=\left(\overline{A}+\overline{B}C\right)\left(\overline{C}+\overline{D}\right)$$
+
+原式中 $A$ 与 $(B+\overline{C})$ 是"与"，变换后是"或"：$\overline{A}+\overline{B}C$；原式两大项之间是"或"，变换后是"与"，必须给每一部分加括号。
+
+**对偶式**（"·"↔"+"，变量不变）：
+
+$$Y^D=\left(A+B\overline{C}\right)\left(C+D\right)$$
+
+</Solution>
+</Example>
+
+<Mode show="exam">
+
+<Callout type="exam" title="化简题的标准步骤">
+1. 先找能直接**合并**的项（$XY+X\overline{Y}=X$）；
+2. 再找被**吸收**的项（某项包含另一项的全部因子）；
+3. 再找**冗余项**（一项含 $X$、一项含 $\overline{X}$，其余因子之积）；
+4. 再找能**消因子**的项（$X+\overline{X}Y=X+Y$）；
+5. 前四步都走不通时，用**配项**（乘 $X+\overline{X}$ 或加 $X\overline{X}$）。
+最后检查：项数能否再少、每项因子能否再少。对结果没把握时，用卡诺图复核。
+</Callout>
+
+</Mode>
+
+## 分层练习
+
+<Quiz lesson="theorems" />
+
+## 常见错误
+
+<Callout type="pitfall" title="用普通代数的消去法">
+从 $A+B=A+C$ 推出 $B=C$ 是错的；从 $AB=AC$ 推出 $B=C$ 也是错的。逻辑代数没有减法和除法。
+</Callout>
+
+<Callout type="pitfall" title="反演时丢失运算顺序">
+$Y=AB+\overline{C}$ 的反函数是 $(\overline{A}+\overline{B})C$，不是 $\overline{A}+\overline{B}C$，也不是 $\overline{A}\,\overline{B}+C$。
+</Callout>
+
+<Callout type="pitfall" title="把对偶式当反函数">
+对偶式不把变量取反，一般 $Y^D\neq\overline{Y}$。例如 $Y=A+B$ 的对偶式是 $AB$，反函数是 $\overline{A}\,\overline{B}$。
+</Callout>
+
+<Callout type="pitfall" title="冗余项识别错误">
+$AB+\overline{A}C+BC$ 中可以删去的是 $BC$，不是 $AB$ 或 $\overline{A}C$；而 $AB+\overline{A}C+\overline{B}C$ 不属于冗余项定理的形式（结果是 $AB+C$，见推导 4）。
+</Callout>
+
+## 知识总结
+
+- 两条分配律都成立：$A(B+C)=AB+AC$，$A+BC=(A+B)(A+C)$。
+- 常用公式：$AB+A\overline{B}=A$；$A+AB=A$；$A+\overline{A}B=A+B$；$AB+\overline{A}C+BC=AB+\overline{A}C$。
+- 代入定理用于推广公式；反演定理求 $\overline{Y}$（注意括号与长非号）；对偶定理让公式"成对"出现。
+- 化简方法：并项、吸收、消项、消因子、配项；每一步都要能说出依据。
+
+## 后续知识关联
+
+- 下一课"逻辑函数的标准形式"用配项法把任意表达式展开为最小项之和。
+- "卡诺图化简与无关项"把本课的合并项、吸收、冗余项定理变成图形操作，更不容易漏项。
+- 第 4 章"竞争与冒险"会说明：冗余项虽然逻辑上多余，但在带延迟模型下可以用来消除冒险。

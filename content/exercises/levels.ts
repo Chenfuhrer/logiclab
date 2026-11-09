@@ -1,0 +1,137 @@
+import type { Exercise } from "@/lib/exercises/types";
+
+// 74LS00 参数取自 docs/materials-summary.md §9（依据 TI SN74LS00 数据手册录入，⚠️待验证）。
+// 其余题目使用题干中明确写出的假设参数。
+export const exercises: Exercise[] = [
+  {
+    id: "levels-1",
+    lesson: "levels",
+    level: "basic",
+    kind: "numeric",
+    title: "高电平噪声容限",
+    prompt:
+      "电气层教学模型：74LS00 的 $V_{OH(\\min)} = 2.7\\ \\mathrm{V}$，$V_{IH(\\min)} = 2\\ \\mathrm{V}$（⚠️待验证）。求 74LS00 驱动 74LS00 时的高电平噪声容限 $V_{NH}$。",
+    knowledge: ["noise-margin"],
+    hints: ["噪声容限是驱动门的输出保证值与负载门输入阈值之差。"],
+    explanation: "$V_{NH} = V_{OH(\\min)} - V_{IH(\\min)} = 2.7 - 2 = 0.7\\ \\mathrm{V}$。",
+    answer: 0.7,
+    tolerance: 0.001,
+    unit: "V",
+  },
+  {
+    id: "levels-2",
+    lesson: "levels",
+    level: "basic",
+    kind: "numeric",
+    title: "低电平噪声容限",
+    prompt:
+      "电气层教学模型：74LS00 的 $V_{IL(\\max)} = 0.8\\ \\mathrm{V}$，$V_{OL(\\max)} = 0.5\\ \\mathrm{V}$（⚠️待验证）。求 74LS00 驱动 74LS00 时的低电平噪声容限 $V_{NL}$。",
+    knowledge: ["noise-margin"],
+    hints: ["低电平时，输出最高可能是多少？输入最高允许是多少？"],
+    explanation: "$V_{NL} = V_{IL(\\max)} - V_{OL(\\max)} = 0.8 - 0.5 = 0.3\\ \\mathrm{V}$。",
+    answer: 0.3,
+    tolerance: 0.001,
+    unit: "V",
+  },
+  {
+    id: "levels-3",
+    lesson: "levels",
+    level: "basic",
+    kind: "choice",
+    title: "输入端悬空",
+    prompt: "关于输入端悬空，下列说法正确的是（多选）：",
+    options: [
+      "TTL 输入端悬空时，电路表现相当于输入高电平",
+      "TTL 输入端悬空相当于高电平，因此可以放心悬空不接",
+      "CMOS 输入端严禁悬空，多余输入应按逻辑要求接 $V_{DD}$ 或地",
+      "CMOS 输入端悬空时一定读作低电平",
+    ],
+    answer: [0, 2],
+    knowledge: ["noise-margin"],
+    hints: ["悬空的引脚容易拾取什么？", "CMOS 是绝缘栅输入，悬空时电压由谁决定？"],
+    explanation:
+      "TTL 悬空输入相当于高电平，但悬空引脚易受干扰，不应悬空（第 2 项错）。CMOS 输入阻抗极高，悬空电压不确定，可能停在阈值附近使两管同时导通，造成功耗增大、振荡甚至损坏，所以严禁悬空（第 4 项错）。",
+  },
+  {
+    id: "levels-4",
+    lesson: "levels",
+    level: "analysis",
+    kind: "numeric",
+    title: "74LS00 的扇出",
+    prompt:
+      "电气层教学模型（⚠️待验证）：74LS00 的 $I_{OL(\\max)} = 8\\ \\mathrm{mA}$，$I_{OH(\\max)} = -0.4\\ \\mathrm{mA}$，$I_{IH(\\max)} = 20\\ \\mu\\mathrm{A}$，$I_{IL(\\max)} = -0.4\\ \\mathrm{mA}$。一个 74LS00 输出最多能驱动多少个 74LS00 输入端？",
+    knowledge: ["fanout"],
+    hints: ["分别计算低电平和高电平下的扇出。", "注意 µA 与 mA 的换算，负号只表示电流方向。"],
+    explanation:
+      "$N_L = 8 / 0.4 = 20$，$N_H = 0.4 / 0.02 = 20$，$N = \\min(20, 20) = 20$。注意：若误用实验教程中属于标准 74 系列的 16 mA，会得到 40，高估一倍。",
+    answer: 20,
+    exam: true,
+  },
+  {
+    id: "levels-5",
+    lesson: "levels",
+    level: "analysis",
+    kind: "numeric",
+    title: "扇出取较小值（假设参数）",
+    prompt:
+      "**假设参数**：某驱动门 $I_{OL(\\max)} = 4\\ \\mathrm{mA}$，$\\lvert I_{OH(\\max)}\\rvert = 0.4\\ \\mathrm{mA}$；负载门 $\\lvert I_{IL(\\max)}\\rvert = 0.2\\ \\mathrm{mA}$，$I_{IH(\\max)} = 40\\ \\mu\\mathrm{A}$。求扇出系数 $N$。",
+    knowledge: ["fanout"],
+    hints: ["$N_L = I_{OL}/\\lvert I_{IL}\\rvert$，$N_H = \\lvert I_{OH}\\rvert/I_{IH}$。", "最终取哪一个？"],
+    explanation: "$N_L = 4 / 0.2 = 20$，$N_H = 0.4 / 0.04 = 10$，$N = \\min(20, 10) = 10$，本例中高电平驱动能力是瓶颈。",
+    answer: 10,
+  },
+  {
+    id: "levels-6",
+    lesson: "levels",
+    level: "analysis",
+    kind: "choice",
+    title: "资料中的 16 mA",
+    prompt: "实验教程在介绍 74LS00 时写有「低电平最大负载电流 16 mA」「$I_{IH}$ 最大约 40 µA」。下列判断正确的是：",
+    options: [
+      "这两个数就是 74LS00 的数据手册参数",
+      "这两个数属于标准 74 系列；74LS00 的 $I_{OL(\\max)}$ 为 8 mA、$I_{IH(\\max)}$ 为 20 µA（⚠️待验证）",
+      "这两个数属于 CMOS 74HC 系列",
+      "这两个数是扇出要求，不是电流参数",
+    ],
+    answer: 1,
+    knowledge: ["fanout"],
+    hints: ["74LS 是低功耗肖特基系列，与标准 74 系列的输入、输出电流不同。"],
+    explanation:
+      "16 mA 与 40 µA 是标准 74 系列的值。按 TI SN74LS00 数据手册（⚠️待验证），74LS00 的 $I_{OL(\\max)} = 8\\ \\mathrm{mA}$，$I_{IH(\\max)} = 20\\ \\mu\\mathrm{A}$，$I_{IL(\\max)} = -0.4\\ \\mathrm{mA}$。计算 74LS 的扇出时不能混用两个系列的参数。",
+  },
+  {
+    id: "levels-7",
+    lesson: "levels",
+    level: "analysis",
+    kind: "numeric",
+    title: "平均传播延迟",
+    prompt: "电气层教学模型：74LS00 的 $t_{PLH}$ 典型值 9 ns，$t_{PHL}$ 典型值 10 ns（⚠️待验证）。求平均传播延迟 $t_{pd}$ 的典型值。",
+    knowledge: ["noise-margin"],
+    hints: ["平均传播延迟是两个方向延迟的平均。"],
+    explanation: "$t_{pd} = (t_{PLH} + t_{PHL}) / 2 = (9 + 10) / 2 = 9.5\\ \\mathrm{ns}$。",
+    answer: 9.5,
+    tolerance: 0.01,
+    unit: "ns",
+  },
+  {
+    id: "levels-8",
+    lesson: "levels",
+    level: "design",
+    kind: "choice",
+    title: "TTL 驱动 CMOS 的接口（假设参数）",
+    prompt:
+      "**假设参数**：某 5 V CMOS 器件 $V_{IH(\\min)} = 3.5\\ \\mathrm{V}$、$V_{IL(\\max)} = 1.5\\ \\mathrm{V}$；驱动它的 TTL 门 $V_{OH(\\min)} = 2.7\\ \\mathrm{V}$、$V_{OL(\\max)} = 0.5\\ \\mathrm{V}$。下列结论与改进措施中正确的是（多选）：",
+    options: [
+      "低电平噪声容限为负，必须改进",
+      "高电平噪声容限为 −0.8 V，高电平不兼容",
+      "在 TTL 输出端接上拉电阻到 +5 V，可以抬高输出高电平",
+      "改用输入阈值与 TTL 兼容的 CMOS 系列（如 74HCT）或电平转换器件",
+    ],
+    answer: [1, 2, 3],
+    knowledge: ["noise-margin"],
+    hints: ["分别计算 $V_{NH}$ 和 $V_{NL}$。", "噪声容限为负时，从「抬高驱动输出」和「降低负载阈值」两个方向想办法。"],
+    explanation:
+      "$V_{NH} = 2.7 - 3.5 = -0.8\\ \\mathrm{V} < 0$，高电平不兼容；$V_{NL} = 1.5 - 0.5 = 1.0\\ \\mathrm{V} > 0$，低电平没有问题（第 1 项错）。改进：上拉电阻把 TTL 高电平抬到接近 5 V；或选用 TTL 兼容输入的 CMOS 系列、电平转换器件。",
+    exam: true,
+  },
+];

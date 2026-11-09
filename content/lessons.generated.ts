@@ -1,0 +1,28 @@
+// 由 scripts/gen-content.mjs 自动生成，请勿手改
+import type { ComponentType } from "react";
+
+export const LESSON_LOADERS: Record<string, () => Promise<{ default: ComponentType }>> = {
+  "async-analysis": () => import("./chapters/ch6/async-analysis.mdx"),
+  "basic-ops": () => import("./chapters/ch2/basic-ops.mdx"),
+  "canonical": () => import("./chapters/ch2/canonical.mdx"),
+  "codes": () => import("./chapters/ch1/codes.mdx"),
+  "comb-design": () => import("./chapters/ch4/comb-design.mdx"),
+  "complement": () => import("./chapters/ch1/complement.mdx"),
+  "counters": () => import("./chapters/ch6/counters.mdx"),
+  "decoder-mux": () => import("./chapters/ch4/decoder-mux.mdx"),
+  "flipflops": () => import("./chapters/ch5/flipflops.mdx"),
+  "hazards": () => import("./chapters/ch4/hazards.mdx"),
+  "kmap": () => import("./chapters/ch2/kmap.mdx"),
+  "latches": () => import("./chapters/ch5/latches.mdx"),
+  "levels": () => import("./chapters/ch3/levels.mdx"),
+  "number-systems": () => import("./chapters/ch1/number-systems.mdx"),
+  "registers": () => import("./chapters/ch6/registers.mdx"),
+  "seq-basics": () => import("./chapters/ch6/seq-basics.mdx"),
+  "sequence-detector": () => import("./chapters/ch6/sequence-detector.mdx"),
+  "sync-analysis": () => import("./chapters/ch6/sync-analysis.mdx"),
+  "sync-design": () => import("./chapters/ch6/sync-design.mdx"),
+  "theorems": () => import("./chapters/ch2/theorems.mdx"),
+  "timing": () => import("./chapters/ch6/timing.mdx"),
+  "triggering": () => import("./chapters/ch5/triggering.mdx"),
+  "tristate-oc": () => import("./chapters/ch3/tristate-oc.mdx"),
+};

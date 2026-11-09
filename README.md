@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LogicLab · 数字电子技术交互式实验室
 
-## Getting Started
+> Interactive Digital Electronics Laboratory
+>
+> 每一个逻辑结论都能被验证，每一个状态变化都能被观察，每一个电路设计都能通过实验检验。
 
-First, run the development server:
+面向电子信息类本科生的数字电子技术学习平台。课程、实验、练习共用同一套**逻辑求解器**与**事件驱动仿真引擎**：页面上的方程、状态表、状态图和波形都是从电路计算出来的，不是预先画好的动画。
+
+## 现在能做什么
+
+| 模块 | 内容 |
+|---|---|
+| **课程** | 第 1～6 章共 23 个完整课时（每课 13 部分：目标 → 问题 → 直观 → 原理 → 电路 → 推导 → 实验 → 例题 → 分层练习 → 常见错误 → 总结 → 后续），三种模式切换：基础解释 / 深入推导 / 考试复习。第 6 章“时序逻辑电路”为重点（8 课时）。第 7～11 章为提纲，明确标注“规划中”。 |
+| **实验 A** | 同步三位二进制加法计数器（3 个下降沿 JK）。驱动方程**从网表自动提取**；单步/连续时钟、修改初态/触发沿/任意 J、K 接法；状态表、状态图、自启动检查、逻辑分析仪波形；符号分析与仿真逐拍比对。 |
+| **实验 B** | 74LS161/163 任意进制计数器：清零法、同步置数法、进位置数法、两片同步级联。**用仿真测出实际模数**；异步清零的状态 N 以瞬态显示（理想模型为同一时刻内的 delta 事件，延迟模型为 30 ns 窄脉冲）。 |
+| **实验 C** | 同步时序逻辑设计向导：序列检测器模板（Mealy/Moore、可重叠/不可重叠）或自定义状态表 → 隐含表化简 → 编码 → D/JK/T → 次态与激励卡诺图 → 方程 → 逻辑图 → 自启动检查 → 门级仿真与原状态表逐拍比对。 |
+| **逻辑工作台** | 表达式 ↔ 真值表 ↔ 卡诺图 ↔ 逻辑图；QM + Petrick 给出全部最简解；等价验证（≤16 变量穷举，更多用 ROBDD）并给反例。 |
+| **自由实验台** | 拖放元件、连线、平移缩放、四值仿真、波形、自动符号分析、JSON 导入导出。 |
+| **练习与复习** | 186 道原创题，7 种题型（选择、数值、填空、表达式、卡诺图圈组、状态表、波形）。按逻辑等价/最简程度/逐状态/逐时钟沿判分，答错先给提示；错题本、掌握度、复习计划、限时考试模式。 |
+
+## 快速开始
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+生产构建：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build && npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+需要 Node.js 20+（开发环境为 Node 24）。学习记录保存在浏览器 localStorage，不需要后端。
 
-## Learn More
+## 测试
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm test                 # 430 个单元测试（逻辑、仿真、状态机、计数器、题库、计算器）
+npm run test:exhaustive  # 全部 65536 个四变量函数的化简验证
+npm run typecheck && npm run lint && npm run check:mdx
+npm run test:e2e         # 44 个 Playwright 用例（36 个路由零运行错误 + 核心流程）
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+详见 [docs/testing.md](docs/testing.md)。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 仿真模型
 
-## Deploy on Vercel
+| 模型 | 说明 | 状态 |
+|---|---|---|
+| A 理想逻辑 | 0/1，零延迟 | ✅ |
+| B 四值逻辑 | 0/1/X/Z；三态总线、总线冲突、OC 线与、输入悬空 | ✅ |
+| C 事件驱动延迟 | delta 周期 + **传输延迟**；冒险、纹波、建立/保持违例 | ✅ |
+| D 电气教学模型 | 电平、噪声容限、扇出、上拉电阻、时序裕量 | ✅（计算器） |
+| E 模拟近似模型 | 555、RC、ADC/DAC | ⬜ 规划中 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+同步触发器严格两阶段更新：同一时钟沿上所有触发器先统一采样、再统一提交。模型与参数依据见网站“模型与依据”页与 [docs/architecture.md](docs/architecture.md)。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 资料依据
+
+项目资料目录中的 20 份文件均为《模拟电子技术》资料，**没有数字电路大纲、课件或试卷**；唯一相关的是《电子技术综合实验教程》§2.11。因此课程按康华光、阎石教材的通行体系组织，不引用任何教材页码；默认符号为上划线非号、`Qⁿ⁺¹`、国标矩形逻辑符号（可切换）。资料扫描与发现的教材错误见 [docs/materials-summary.md](docs/materials-summary.md)。
+
+## 目录
+
+```
+app/          页面路由（首页、课程、实验、练习、复习、模型与依据）
+components/   UI：电路图、波形、卡诺图、状态图、实验、课程组件、练习播放器
+content/      课程体系、知识图、23 个 MDX 课时、186 道题、实验网表
+lib/logic     解析器、真值表、等价验证、BDD、QM+Petrick、卡诺图、推导验证
+lib/sim       网表、四值逻辑、元件模型（门/锁存器/触发器/74LS138/151/161/163/194）、事件驱动引擎
+lib/fsm       同步电路分析、网表提取、状态化简、综合、序列检测器、方程→网表
+lib/counters  74LS161 任意进制设计与验证
+lib/exercises 题型与判分
+docs/         资料索引、架构、知识图、计划、进度、测试、内容规范
+tests/        单元、穷举、端到端测试
+```
+
+## 尚未完成
+
+第 7～11 章正文；74LS148/153/283/85/160/162/290 模型；AI 助手；Verilog 对照；独热码与不完全确定状态表化简。详见 [docs/PROGRESS.md](docs/PROGRESS.md)。

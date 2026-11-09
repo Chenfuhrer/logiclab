@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "logiclab-dev", "runtimeExecutable": "npx", "runtimeArgs": ["next", "dev", "-p", "3210"], "port": 3210 }
+  ]
+}

@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 教学资料（受版权保护，不上传）
+/materials/*
+!/materials/README.md
+*.pdf
+*.pptx
+*.ppt
+*.doc
+*.docx
+
+# 测试产物
+/test-results/
+/playwright-report/
+/blob-report/
+*.tsbuildinfo

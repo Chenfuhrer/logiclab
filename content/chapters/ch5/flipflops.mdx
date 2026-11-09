@@ -1,0 +1,233 @@
+## 学习目标
+
+- 写出 D、JK、T、T′ 触发器（以及钟控 SR 触发器）的特性表、特性方程与状态图。
+- 由特性表反推**激励表**：已知现态与次态，求所需的输入；知道 JK 激励表中为什么有无关项。
+- 用"特性方程对比法"完成触发器之间的转换，例如 JK→D、D→T、D→JK。
+- 理解异步置位端 $\overline{S_D}$、异步复位端 $\overline{R_D}$：低电平有效、不受时钟控制、优先于时钟输入。
+- 能根据时钟与输入波形画出边沿触发器的输出波形。
+
+## 前置知识
+
+- 触发方式：本课所有触发器均为**边沿触发**，次态只由有效沿前一瞬间的输入与现态决定（上一课）。
+- SR 锁存器的约束条件 $SR = 0$。
+
+## 实际问题
+
+一个计数器需要"每来一个时钟就翻转一次"的单元，一个数据寄存器需要"时钟到来时把输入原样存进去"的单元，一个状态机可能需要"按条件置 1、置 0、保持或翻转"的单元。它们都是触发器，只是**输入与次态的关系**不同。手头只有某一种触发器时，还要会把它改造成另一种。
+
+## 直观解释
+
+<Mode show="basic">
+
+四种触发器可以按"你给它什么命令"来记：
+
+- **D**（Data）：照抄。时钟一到，$Q$ 就变成 $D$。
+- **JK**：功能最全。$J$ 像"置 1 按钮"，$K$ 像"置 0 按钮"；都不按就保持，同时按就翻转。
+- **T**（Toggle）：$T = 1$ 时翻转，$T = 0$ 时保持。
+- **T′**：只会翻转，每来一个有效沿就翻一次——天然的二分频器。
+
+</Mode>
+
+<Mode show="deep">
+
+从函数的角度，触发器是一个"下一状态函数" $Q^{n+1} = f(\text{输入}, Q^n)$ 在有效沿处求值。单输入的 $f$ 有 4 种对 $Q^n$ 的作用：置 0、置 1、保持、取反。D 触发器让输入在"置 0/置 1"之间选择；T 触发器让输入在"保持/取反"之间选择；JK 用两个输入覆盖全部 4 种作用，因而最通用。任一触发器 + 适当的组合逻辑都能实现其他任何一种——这就是触发器转换的依据。
+
+</Mode>
+
+## 基本原理
+
+<Callout type="model" title="当前模型">
+逻辑层/理想模型：边沿触发，有效沿时刻按特性方程更新，传播延迟视为 0。电气层的建立/保持时间见"时序约束与最高时钟频率"。
+</Callout>
+
+### 特性表与特性方程
+
+<table>
+<thead><tr><th>类型</th><th>特性表（输入 → $Q^{n+1}$）</th><th>特性方程</th></tr></thead>
+<tbody>
+<tr><td>D</td><td>$D = 0 \to 0$；$D = 1 \to 1$</td><td>$Q^{n+1} = D$</td></tr>
+<tr><td>JK</td><td>$00 \to Q^n$；$01 \to 0$；$10 \to 1$；$11 \to \overline{Q^n}$</td><td>$Q^{n+1} = J\overline{Q^n} + \overline{K}Q^n$</td></tr>
+<tr><td>T</td><td>$T = 0 \to Q^n$；$T = 1 \to \overline{Q^n}$</td><td>$Q^{n+1} = T \oplus Q^n = T\overline{Q^n} + \overline{T}Q^n$</td></tr>
+<tr><td>T′</td><td>每个有效沿 $\to \overline{Q^n}$</td><td>$Q^{n+1} = \overline{Q^n}$</td></tr>
+<tr><td>SR（钟控）</td><td>$00 \to Q^n$；$01 \to 0$；$10 \to 1$；$11$ 不允许</td><td>$Q^{n+1} = S + \overline{R}Q^n,\ SR = 0$</td></tr>
+</tbody>
+</table>
+
+### 状态图
+
+每种触发器只有两个状态 0 和 1，状态图用两个圆圈和四条有向边表示，边上标注引起该转换的输入：
+
+<table>
+<thead><tr><th>转换</th><th>D</th><th>JK</th><th>T</th></tr></thead>
+<tbody>
+<tr><td>$0 \to 0$</td><td>$D = 0$</td><td>$J = 0,\ K = \times$</td><td>$T = 0$</td></tr>
+<tr><td>$0 \to 1$</td><td>$D = 1$</td><td>$J = 1,\ K = \times$</td><td>$T = 1$</td></tr>
+<tr><td>$1 \to 0$</td><td>$D = 0$</td><td>$J = \times,\ K = 1$</td><td>$T = 1$</td></tr>
+<tr><td>$1 \to 1$</td><td>$D = 1$</td><td>$J = \times,\ K = 0$</td><td>$T = 0$</td></tr>
+</tbody>
+</table>
+
+这张表**同时就是激励表**：按"现态 → 次态"查所需输入。
+
+### 激励表中的无关项
+
+以 JK 的 $0 \to 1$ 为例：$JK = 10$（置 1）可以，$JK = 11$（翻转，$0$ 翻成 $1$）也可以，所以 $J = 1$、$K$ 任意，记作 $K = \times$。正是这些无关项，使得用 JK 触发器设计同步电路时驱动方程往往更简单。
+
+### 异步置位与异步复位
+
+多数集成触发器另有两个低电平有效的异步端：
+
+- $\overline{S_D} = 0$：立即置 $Q = 1$；$\overline{R_D} = 0$：立即置 $Q = 0$。
+- **不需要时钟**，并且**优先于**时钟和 $D$/$J$/$K$/$T$ 输入；只有 $\overline{S_D} = \overline{R_D} = 1$ 时触发器才按时钟正常工作。
+- 二者不能同时为 0（与与非门型 SR 锁存器的约束相同）：同时为 0 时 $Q$、$\overline{Q}$ 同为 1，撤销后状态不定。
+
+## 电路结构
+
+<Mode show="basic">
+
+国标逻辑符号是一个矩形框：左侧为输入 $D$（或 $J$、$K$、$T$）与时钟 $C1$，时钟端画动态输入标记 ">"，下降沿有效时外加小圆圈；上、下方为 $\overline{S_D}$、$\overline{R_D}$（引脚处画小圆圈表示低有效）；右侧为 $Q$ 与 $\overline{Q}$（$\overline{Q}$ 端画小圆圈）。T 触发器在集成电路中通常不单独生产，而由 JK（$J = K = T$）或 D（$D = T \oplus Q$）连接而成。
+
+</Mode>
+
+<Mode show="deep exam">
+
+符号上的 $1D$、$1J$、$1K$ 与 $C1$ 中的"1"是关联标记，表示这些输入受 $C1$ 控制；$S$、$R$ 端不带数字，表示它们**不受时钟控制**（异步）。考试中看到 $\overline{S_D}$、$\overline{R_D}$ 直接与时钟并列画在框外，就应判断为异步端，画波形时要先处理它们。
+
+</Mode>
+
+## 逻辑推导
+
+### 触发器转换：特性方程对比法
+
+**思路**：写出"已有触发器"的特性方程与"目标触发器"的特性方程，令两者相等，解出已有触发器的输入。
+
+**例：JK → D。** 已有 $Q^{n+1} = J\overline{Q^n} + \overline{K}Q^n$，目标 $Q^{n+1} = D = D\overline{Q^n} + DQ^n$。对比 $\overline{Q^n}$ 与 $Q^n$ 的系数：$J = D$，$\overline{K} = D$，即 $K = \overline{D}$。验证（每一步由求解器检查等价）：
+
+<Derivation steps={[{expr:"DQ'+(D')'Q",explain:"把 J = D、K = D' 代入 JK 的特性方程 JQ'+K'Q"},{expr:"DQ'+DQ",rule:"involution",explain:"还原律：(D')' = D"},{expr:"D(Q'+Q)",rule:"distributive",explain:"提取公因子 D"},{expr:"D·1",rule:"complement-law",explain:"互补律：Q'+Q = 1"},{expr:"D",rule:"identity",explain:"0-1 律：D·1 = D，正是 D 触发器的特性方程"}]} />
+
+**例：D → T。** 已有 $Q^{n+1} = D$，目标 $Q^{n+1} = T \oplus Q^n$，直接令 $D = T \oplus Q^n$：D 触发器前加一个异或门，异或门一端接 $T$，另一端接 $Q$。
+
+**例：JK → T。** 令 $J = K = T$：$T\overline{Q^n} + \overline{T}Q^n = T \oplus Q^n$。
+
+<Derivation steps={[{expr:"TQ'+T'Q",explain:"把 J = K = T 代入 JQ'+K'Q"},{expr:"T⊕Q",rule:"xor-def",explain:"异或定义"}]} />
+
+<Mode show="deep">
+
+**全部常用转换一览**（$Q$ 指 $Q^n$）：
+
+<table>
+<thead><tr><th>已有 \ 目标</th><th>D</th><th>JK</th><th>T</th><th>T′</th></tr></thead>
+<tbody>
+<tr><td>JK</td><td>$J = D,\ K = \overline{D}$</td><td>—</td><td>$J = K = T$</td><td>$J = K = 1$</td></tr>
+<tr><td>D</td><td>—</td><td>$D = J\overline{Q} + \overline{K}Q$</td><td>$D = T \oplus Q$</td><td>$D = \overline{Q}$</td></tr>
+<tr><td>T</td><td>$T = D \oplus Q$</td><td>$T = J\overline{Q} + KQ$</td><td>—</td><td>$T = 1$</td></tr>
+</tbody>
+</table>
+
+"T → JK"一格的推导：要求 $T \oplus Q = J\overline{Q} + \overline{K}Q$。$Q = 0$ 时 $T = J$；$Q = 1$ 时 $\overline{T} = \overline{K}$ 即 $T = K$。合起来 $T = J\overline{Q} + KQ$。这一式子已用真值表核对：$(J\overline{Q} + KQ) \oplus Q = J\overline{Q} + \overline{K}Q$ 对全部 8 种取值成立。
+
+另一种方法是**激励表法**：列出目标触发器的特性表（输入、$Q^n$ → $Q^{n+1}$），对每一行查已有触发器的激励表得到所需输入，再用卡诺图化简。这种方法与同步时序电路设计的步骤完全相同。
+
+</Mode>
+
+## 交互实验
+
+<FFLab type="JK" edge="falling" />
+
+在 JK 实验中，把 $J$、$K$ 设成 $00, 01, 10, 11$ 各几个周期，核对输出与特性表；再打开异步复位端，验证复位期间时钟无效。
+
+<FFLab type="T" edge="rising" />
+
+在 T 实验中令 $T$ 一直为 1，观察 $Q$ 的周期是时钟周期的 2 倍（T′ 功能，二分频）。
+
+## 典型例题
+
+<Example title="例 1  下降沿 JK 触发器的波形">
+
+下降沿触发的 JK 触发器初态 $Q = 0$。6 个时钟周期中（每个下降沿到来前）$J$、$K$ 的取值如下，求每个下降沿之后的 $Q$。
+
+<table>
+<thead><tr><th>周期</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead>
+<tbody>
+<tr><td>$J$</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>$K$</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+</tbody>
+</table>
+
+<Solution>
+
+逐沿代入 $Q^{n+1} = J\overline{Q^n} + \overline{K}Q^n$：
+
+<table>
+<thead><tr><th>周期</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead>
+<tbody>
+<tr><td>$JK$</td><td>10 置 1</td><td>00 保持</td><td>11 翻转</td><td>11 翻转</td><td>01 置 0</td><td>00 保持</td></tr>
+<tr><td>$Q$</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+</tbody>
+</table>
+
+画波形时，$Q$ 只在时钟**下降沿**处跳变，两沿之间保持水平。（已用项目判分器的 `waveformReference` 核对：`110100`。）
+
+</Solution>
+</Example>
+
+<Example title="例 2  异步复位与时钟">
+
+下降沿 JK 触发器 $J = K = 1$，初态 $Q = 0$，$\overline{S_D} = 1$。第 1 个下降沿后 $\overline{R_D}$ 变为 0 并保持一个完整周期，然后回到 1。求前 3 个下降沿之后的 $Q$。
+
+<Solution>
+
+第 1 个下降沿：$J = K = 1$，翻转，$Q = 1$。随后 $\overline{R_D} = 0$，$Q$ **立即**变 0，不等时钟。第 2 个下降沿时 $\overline{R_D}$ 仍为 0，时钟无效，$Q = 0$。$\overline{R_D}$ 回到 1 后，第 3 个下降沿翻转，$Q = 1$。结果：1、0、1。（已用 `jkff` 模型带异步端仿真核对。）
+
+</Solution>
+</Example>
+
+<Example title="例 3  用 D 触发器实现 JK 功能">
+
+只有 D 触发器，要实现 JK 触发器的功能，$D$ 端应接什么？
+
+<Solution>
+
+令 $D = Q^{n+1}_{JK} = J\overline{Q} + \overline{K}Q$。电路：两个与门分别产生 $J\overline{Q}$、$\overline{K}Q$，一个或门合并后接 $D$；$\overline{Q}$ 取自 D 触发器的反相输出。
+
+</Solution>
+</Example>
+
+## 分层练习
+
+<Quiz lesson="flipflops" />
+
+## 常见错误
+
+<Mode show="basic">
+
+- 把 JK 特性方程写成 $J\overline{Q} + KQ$（漏掉 $K$ 上的非号）。用 $J = 0, K = 1, Q = 1$ 代入自查：应得 0。
+- 画波形时让 $Q$ 在两个有效沿之间随输入变化——那是锁存器的行为。
+
+</Mode>
+
+<Mode show="deep">
+
+- 激励表中把无关项"×"随意写成 0：设计时会失去化简机会，但不会出错；而把应为确定值的位写成 ×，则会出错。
+- 转换时忽略 $Q$ 也是组合逻辑的输入：例如 D → T 需要 $D = T \oplus Q$，不能只写 $D = T$。
+
+</Mode>
+
+<Mode show="exam">
+
+**通行题型**：①已知 $CLK$ 与输入波形画 $Q$（先看触发沿、初态和异步端）；②写特性方程或激励表；③触发器转换（写出连接表达式并画图）。波形题的稳妥步骤：在每个有效沿处画一条竖虚线，在虚线左侧读输入，按特性方程得出次态，标在虚线右侧；异步端有效的区间先整体涂掉。
+
+</Mode>
+
+## 知识总结
+
+- D：$Q^{n+1} = D$；JK：$Q^{n+1} = J\overline{Q^n} + \overline{K}Q^n$；T：$Q^{n+1} = T \oplus Q^n$；T′：$Q^{n+1} = \overline{Q^n}$。
+- 激励表由特性表反查得到；JK 激励表每行都有一个无关项。
+- 转换：令两种触发器的特性方程相等，解出已有触发器的输入；或按激励表逐行查表后化简。
+- $\overline{S_D}$、$\overline{R_D}$ 低电平有效、异步、优先于时钟，不能同时有效。
+
+## 后续知识关联
+
+- "时序逻辑基础"把多个触发器的驱动方程代入特性方程，得到整个电路的状态方程。
+- "同步时序逻辑设计"中，由状态表求驱动方程用的正是本课的激励表。
+- 74LS161 的异步清零、74LS194 的 $\overline{R_D}$ 都是本课异步复位端的应用。

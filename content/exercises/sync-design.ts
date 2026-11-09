@@ -1,0 +1,157 @@
+import type { Exercise } from "@/lib/exercises/types";
+
+export const exercises: Exercise[] = [
+  {
+    id: "sync-design-1",
+    lesson: "sync-design",
+    level: "basic",
+    kind: "choice",
+    title: "状态等价的条件",
+    prompt: "在完全确定的状态表中，两个状态 $S_i$、$S_j$ 等价的条件是：",
+    options: [
+      "在每种输入下输出都相同",
+      "在每种输入下次态都相同",
+      "在每种输入下输出相同，并且次态相同或次态等价",
+      "至少在一种输入下输出与次态都相同",
+    ],
+    answer: 2,
+    knowledge: ["state-minimization"],
+    hints: ["只看输出相同，能保证之后每一拍的输出也相同吗？", "次态不同但等价，算不算满足条件？"],
+    explanation:
+      "等价要求对**每一种**输入：输出相同，**且**次态相同或等价。仅输出相同不够——次态不等价时，之后某一拍的输出会出现差别。次态不必完全相同，只要等价即可（这正是隐含表要记录隐含对的原因）。",
+    exam: true,
+  },
+  {
+    id: "sync-design-2",
+    lesson: "sync-design",
+    level: "basic",
+    kind: "numeric",
+    title: "触发器个数",
+    prompt: "某状态机化简后有 9 个状态，至少需要几个触发器？",
+    answer: 4,
+    unit: "个",
+    knowledge: ["state-assignment"],
+    hints: ["$n$ 个触发器最多能表示多少个状态？", "求满足 $2^n\\ge 9$ 的最小 $n$。"],
+    explanation: "$n=\\lceil\\log_2 9\\rceil=4$（$2^3=8\\lt 9\\le 16=2^4$）。4 个触发器共 16 个编码，其中 7 个是未用状态。",
+  },
+  {
+    id: "sync-design-3",
+    lesson: "sync-design",
+    level: "basic",
+    kind: "choice",
+    title: "JK 激励表",
+    prompt: "要求 JK 触发器从 $Q^n=1$ 变为 $Q^{n+1}=0$，$J$、$K$ 应取：",
+    options: ["$J=0,\\ K=1$", "$J=\\times,\\ K=1$", "$J=1,\\ K=\\times$", "$J=\\times,\\ K=0$"],
+    answer: 1,
+    knowledge: ["excitation", "sync-design"],
+    hints: ["$Q^n=1$ 时，特性方程 $Q^{n+1}=J\\overline{Q^n}+\\overline{K}Q^n$ 中哪一项起作用？"],
+    explanation:
+      "$Q^n=1$ 时 $Q^{n+1}=\\overline{K}$，与 $J$ 无关。要得到 0，需 $K=1$，$J$ 任意，即 $J=\\times$、$K=1$（$J=1,K=1$ 翻转，$J=0,K=1$ 置 0，都能实现 $1\\to0$）。",
+  },
+  {
+    id: "sync-design-4",
+    lesson: "sync-design",
+    level: "analysis",
+    kind: "numeric",
+    title: "用隐含表化简",
+    prompt:
+      "化简下面的 Mealy 型状态表（次态/输出），化简后有几个状态？\n\n$$\\begin{array}{c|cc}\\text{现态} & X=0 & X=1\\\\\\hline A & B/0 & C/0\\\\B & D/0 & C/0\\\\C & B/0 & E/1\\\\D & D/1 & C/0\\\\E & B/0 & E/1\\end{array}$$",
+    answer: 4,
+    unit: "个",
+    knowledge: ["state-minimization"],
+    hints: ["先按两种输入下的输出把状态分组。", "$A$ 与 $B$ 输出相同，它们的隐含对是什么？那一对的输出相同吗？"],
+    explanation:
+      "按输出分组：$A$、$B$ 为 $(0,0)$；$C$、$E$ 为 $(0,1)$；$D$ 为 $(1,0)$ 单独一组。\n\n- $(C,E)$：两种输入下次态完全相同（$B$、$E$），**等价**。\n- $(A,B)$：输出相同，但 $X=0$ 时次态为 $B$ 与 $D$，而 $(B,D)$ 输出不同，所以 $(A,B)$ **不等价**——又一个“仅输出相同不能合并”的例子。\n\n等价类 $\\{A\\}$、$\\{B\\}$、$\\{C,E\\}$、$\\{D\\}$，共 **4** 个状态（经求解器核对）。",
+  },
+  {
+    id: "sync-design-5",
+    lesson: "sync-design",
+    level: "analysis",
+    kind: "expression",
+    title: "模 6 计数器的 D1",
+    prompt:
+      "用 D 触发器设计模 6 同步计数器，二进制顺序编码 $000\\to001\\to\\cdots\\to101\\to000$，$110$、$111$ 为无关项。写出 $D_1$ 的**最简与或式**（变量 Q2、Q1、Q0）。",
+    vars: ["Q2", "Q1", "Q0"],
+    target: { minterms: [1, 2], dontCares: [6, 7] },
+    minimal: "sop",
+    knowledge: ["sync-design"],
+    hints: ["$D_1=Q_1^{n+1}$。逐个状态写出次态的 $Q_1$ 位。", "哪些格可以借助 $m_6$、$m_7$ 合并？"],
+    explanation:
+      "$Q_1^{n+1}$：$000\\to0$，$001\\to1$，$010\\to1$，$011\\to0$，$100\\to0$，$101\\to0$，$m_6$、$m_7$ 为 $\\times$。所以 $D_1=\\sum m(1,2)+d(6,7)$。\n\n$m_2$ 与 $m_6$ 合并为 $Q_1\\overline{Q_0}$；$m_1$ 的相邻格 $m_0$、$m_3$、$m_5$ 都为 0，只能单独成圈 $\\overline{Q_2}\\,\\overline{Q_1}Q_0$。\n\n$$D_1=Q_1\\overline{Q_0}+\\overline{Q_2}\\,\\overline{Q_1}Q_0$$",
+  },
+  {
+    id: "sync-design-6",
+    lesson: "sync-design",
+    level: "analysis",
+    kind: "kmap",
+    title: "模 6 计数器的 D2 卡诺图",
+    prompt:
+      "同上题的模 6 计数器，$D_2=Q_2^{n+1}$ 的卡诺图中 $m_3$、$m_4$ 为 1，$m_6$、$m_7$ 为无关项。在卡诺图上圈出最简与或式。",
+    vars: ["Q2", "Q1", "Q0"],
+    minterms: [3, 4],
+    dontCares: [6, 7],
+    knowledge: ["sync-design", "dont-care"],
+    hints: ["$m_3$（011）与哪个无关项相邻？", "$m_4$（100）与哪个无关项相邻？"],
+    explanation:
+      "$m_3$ 与 $m_7$ 合并为 $Q_1Q_0$；$m_4$ 与 $m_6$ 合并为 $Q_2\\overline{Q_0}$。\n\n$$D_2=Q_1Q_0+Q_2\\overline{Q_0}$$\n\n验证：$011\\to100$ 时 $D_2=1$，$100\\to101$ 时 $D_2=1$，$101\\to000$ 时 $D_2=0$。",
+  },
+  {
+    id: "sync-design-7",
+    lesson: "sync-design",
+    level: "analysis",
+    kind: "expression",
+    title: "模 3 计数器的 J0",
+    prompt:
+      "用 JK 触发器设计模 3 计数器，编码 $00\\to01\\to10\\to00$（$Q_1Q_0$），$11$ 为未用状态。写出 $J_0$ 的**最简与或式**（变量 Q1、Q0）。",
+    vars: ["Q1", "Q0"],
+    target: { minterms: [0], dontCares: [1, 3] },
+    minimal: "sop",
+    knowledge: ["excitation", "sync-design"],
+    hints: ["先写出每个现态下 $Q_0^n\\to Q_0^{n+1}$，再查 JK 激励表得到 $J_0$。", "$Q_0^n=1$ 时 $J_0$ 是什么？"],
+    explanation:
+      "$00$：$Q_0:0\\to1$，$J_0=1$；$01$：$Q_0:1\\to0$，$J_0=\\times$；$10$：$Q_0:0\\to0$，$J_0=0$；$11$：未用，$\\times$。\n\n$J_0=m_0+d(1,3)$，$m_0$ 与 $m_1$ 合并为 $\\overline{Q_1}$，所以 $J_0=\\overline{Q_1}$（同时 $K_0=1$，$J_1=Q_0$，$K_1=1$，经求解器核对）。",
+  },
+  {
+    id: "sync-design-8",
+    lesson: "sync-design",
+    level: "analysis",
+    kind: "statetable",
+    title: "验证模 6 计数器（含未用状态）",
+    prompt:
+      "把第 5、6 题得到的方程 $D_2=Q_1Q_0+Q_2\\overline{Q_0}$，$D_1=Q_1\\overline{Q_0}+\\overline{Q_2}\\,\\overline{Q_1}Q_0$，$D_0=\\overline{Q_0}$，$C=Q_2Q_0$ 重新分析一遍：填写全部 8 个现态的次态与输出，并据此判断能否自启动。",
+    circuit: {
+      inputs: [],
+      ffs: [
+        { name: "Q2", type: "D", inputs: { D: "Q1Q0+Q2Q0'" } },
+        { name: "Q1", type: "D", inputs: { D: "Q1Q0'+Q2'Q1'Q0" } },
+        { name: "Q0", type: "D", inputs: { D: "Q0'" } },
+      ],
+      outputs: [{ name: "C", expr: "Q2Q0" }],
+    },
+    knowledge: ["sync-design", "self-start"],
+    hints: ["合法状态的 6 行应当正好实现 $000\\to001\\to\\cdots\\to101\\to000$。", "$110$、$111$ 两行必须代入方程计算，不能凭无关项“猜”。"],
+    explanation:
+      "合法状态：$000\\to001\\to010\\to011\\to100\\to101\\to000$，$101$ 时 $C=1$。\n\n未用状态：$110$：$D_2=1$、$D_1=1$、$D_0=1$，次态 $111$；$111$：$D_2=1$、$D_1=0$、$D_0=0$，次态 $100$。$110\\to111\\to100$，最终进入合法循环，**能自启动**（虽然 $110$ 第一拍进入的仍是未用状态）。$111$ 时 $C=1$，是一次误输出。",
+  },
+  {
+    id: "sync-design-9",
+    lesson: "sync-design",
+    level: "design",
+    kind: "choice",
+    title: "自启动判断（多选）",
+    prompt: "关于同步时序电路设计中的自启动检查，下列说法正确的有（多选）：",
+    options: [
+      "只要有未用状态，电路就不能自启动",
+      "未用状态从初始状态不可达，所以电路一定能自启动",
+      "利用无关项化简后，必须把每个未用状态代入最终的驱动方程，检查它最终是否进入合法循环",
+      "若两个未用状态互为次态，构成无效循环，则电路不能自启动",
+      "未用状态的第一个次态如果仍是未用状态，电路就一定不能自启动",
+    ],
+    answer: [2, 3],
+    knowledge: ["self-start", "sync-design"],
+    hints: ["回忆模 6 计数器（D 触发器）中 $110$ 的去向。", "“可达”描述的是正常运行，“自启动”关心的是上电或干扰后的情况。"],
+    explanation:
+      "C、D 正确。A 错：未用状态是否存在不是判据，要看它们的去向。B 错：不可达只说明正常运行时不会进入，上电或干扰仍可能进入。E 错：例如模 6 计数器中 $110\\to111\\to100$，经过两拍进入合法循环，仍然能自启动。",
+    exam: true,
+  },
+];
