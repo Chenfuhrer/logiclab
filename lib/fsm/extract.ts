@@ -13,7 +13,8 @@ import { FF_PINS, type FFSpec, type SyncCircuit } from "./analyze";
  *  - 输出：接到 LED / 探针的组合逻辑网络；
  *  - 触发器的异步置位/复位端必须未连接或接常量 1（无效）。
  */
-export type ExtractResult = { ok: true; circuit: SyncCircuit; clockComp: string } | { ok: false; reason: string };
+/** initial：由各触发器的初态参数拼成的状态编码（未知初态按 0 计，并在 initialUnknown 中标明） */
+export type ExtractResult = { ok: true; circuit: SyncCircuit; clockComp: string; initial: number; initialUnknown: boolean } | { ok: false; reason: string };
 
 const SUPPORTED_FF = new Set(["dff", "jkff", "tff", "srff"]);
 const SUPPORTED_GATES = new Set(["and", "or", "nand", "nor", "xor", "xnor", "not", "buf"]);
@@ -164,7 +165,15 @@ export function extractSyncCircuit(nl: Netlist): ExtractResult {
       if (outputs.some((o) => o.name === name)) continue;
       outputs.push({ name, expr: traceNet(netId, `${c.label ?? c.id}`) });
     }
-    return { ok: true, circuit: { inputs: [...inputs].sort(), ffs, outputs }, clockComp: clockComp! };
+    let initial = 0;
+    let initialUnknown = false;
+    ordered.forEach((ff) => {
+      const v = ff.params?.init;
+      const bit = v === 1 || v === "1" ? 1 : v === 0 || v === "0" ? 0 : null;
+      if (bit === null) initialUnknown = true;
+      initial = (initial << 1) | (bit ?? 0);
+    });
+    return { ok: true, circuit: { inputs: [...inputs].sort(), ffs, outputs }, clockComp: clockComp!, initial, initialUnknown };
   } catch (e) {
     return { ok: false, reason: `当前电路不支持自动符号分析：${(e as Error).message}` };
   }

@@ -66,7 +66,13 @@ export function toText(e: Expr, opt: { andDot?: boolean } = {}): string {
         // 子项以数字开头（常量）时必须显式写 ·，否则 "A0" 会被读成变量 A0
         return x.es
           .map((c) => wrap(c, 3))
-          .reduce((acc, s, i) => (i === 0 ? s : acc + (opt.andDot || /^\d/.test(s) ? "·" : "") + s), "");
+          .reduce((acc, s, i) => {
+            if (i === 0) return s;
+            // 常量、或多字母变量名（如 EN、QA）相邻时必须显式写 ·，否则读回会被拆成单字母变量
+            const multi = (c: Expr) => c.k === "var" && /^[A-Za-z]{2,}/.test(c.name);
+            const needDot = opt.andDot || /^\d/.test(s) || multi(x.es[i]) || multi(x.es[i - 1]) || (x.es[i - 1].k === "not" && multi((x.es[i - 1] as { e: Expr }).e));
+            return acc + (needDot ? "·" : "") + s;
+          }, "");
       case "or":
         return x.es.map((c) => wrap(c, 2)).join(" + ");
       case "xor":

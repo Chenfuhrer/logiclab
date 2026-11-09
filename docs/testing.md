@@ -23,6 +23,7 @@ Playwright 默认使用自己下载的 Chromium。本机若已有其他版本，
 | 仿真 | `tests/unit/sim.test.ts` | D/JK/T/SR、上升/下降沿、初始 X、异步置位复位、D 锁存器透明、主从 JK 一次翻转、两阶段更新（移位链、交换电路）、实验 A 计数序列与 C、推挽冲突、三态 Z/冲突 X、OC 线与与缺上拉、输入悬空（X / TTL）、门级锁存器收敛、自环不收敛停止、环形振荡周期、冒险毛刺时刻、建立时间违例 |
 | 状态机 / 计数器 | `tests/unit/fsm.test.ts` | 网表提取方程、状态方程、符号分析与仿真逐状态一致、拒绝不支持电路、自启动 always/some/never 与无效循环、隐含表（仅输出相同不能合并）、序列检测器 5 种序列 × Mealy/Moore × 重叠/不重叠对字符串参考模型、D/JK/T 综合、强制自启动、模 5 JK 经典方程、74LS161/163 N=2～16 × 4 种方法测模数与瞬态、异步清零的 delta 序列与 30 ns 瞬态、两片级联 N=24/60/100/256、预置数、自启动；18 个设计结果门级仿真逐拍比对 |
 | 题库 | `tests/unit/exercises.test.ts` | 186 题逐题：答案可被判分器判为正确、knowledge/lesson 存在、id 唯一、提示存在 |
+| 评审回归 | `tests/unit/review-regressions.test.ts` | 独立代码评审确认的 10 个问题 |
 | 计算器 | `tests/unit/numbers.test.ts`、`analog-models.test.ts` | 进制、补码、溢出、BCD/2421/余 3/格雷码、电平、上拉、时序 |
 | 端到端 | `tests/e2e/core.spec.ts` | 36 个路由零运行错误；实验 A/B/C、逻辑工作台、模式切换、完成标记持久化、练习判分与错题本、主题切换（含移动端视口） |
 

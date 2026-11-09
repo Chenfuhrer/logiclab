@@ -115,8 +115,22 @@ function gradeExpression(ex: ExpressionExercise, src: string): GradeResult {
   return { correct: true, feedback: "正确：与目标函数逻辑等价" + (ex.minimal ? "，并且已是最简形式。" : "。") };
 }
 
-/** 或与式的或项个数；不是或与式返回 null */
-function posTerms(e: Expr): number | null {
+/** 拍平嵌套的同类与/或：A(BC) → ABC */
+function flat(e: Expr): Expr {
+  if (e.k === "and" || e.k === "or") {
+    const es: Expr[] = [];
+    for (const x of e.es.map(flat)) if (x.k === e.k) es.push(...x.es);
+    else es.push(x);
+    return { k: e.k, es };
+  }
+  if (e.k === "not") return { k: "not", e: flat(e.e) };
+  return e;
+}
+
+/** 或与式的或项个数；不是或与式返回 null（常量 1 为 0 项） */
+function posTerms(e0: Expr): number | null {
+  const e = flat(e0);
+  if (e.k === "const" && e.v === 1) return 0;
   const isLit = (x: Expr) => x.k === "var" || (x.k === "not" && x.e.k === "var") || x.k === "const";
   const isSum = (x: Expr) => isLit(x) || (x.k === "or" && x.es.every(isLit));
   if (isSum(e)) return 1;
@@ -124,8 +138,10 @@ function posTerms(e: Expr): number | null {
   return null;
 }
 
-/** 与或式的乘积项个数；不是与或式返回 null */
-function sopTerms(e: Expr): number | null {
+/** 与或式的乘积项个数；不是与或式返回 null（常量 0 为 0 项） */
+function sopTerms(e0: Expr): number | null {
+  const e = flat(e0);
+  if (e.k === "const" && e.v === 0) return 0;
   const isLit = (x: Expr) => x.k === "var" || (x.k === "not" && x.e.k === "var") || x.k === "const";
   const isProd = (x: Expr) => isLit(x) || (x.k === "and" && x.es.every(isLit));
   if (isProd(e)) return 1;
@@ -160,7 +176,8 @@ export function exerciseCircuit(ex: StateTableExercise): SyncCircuit {
 
 function gradeStateTable(ex: StateTableExercise, next: (number | null)[], outputs?: (number | null)[][]): GradeResult {
   const a = analyzeSync(exerciseCircuit(ex));
-  const details = a.rows.map((r, i) => next[i] === r.next && (!outputs || r.outputs.every((o, k) => outputs[i]?.[k] === o)));
+  // 钟控 SR 在 S=R=1 的行次态不确定：任何填写都不判错
+  const details = a.rows.map((r, i) => r.violations.length > 0 || (next[i] === r.next && (!outputs || r.outputs.every((o, k) => outputs[i]?.[k] === o))));
   const firstBad = details.indexOf(false);
   if (firstBad < 0) return { correct: true, feedback: "状态转换表全部正确。", details };
   const r = a.rows[firstBad];

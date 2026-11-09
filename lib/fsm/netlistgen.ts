@@ -1,5 +1,4 @@
 import type { Expr } from "../logic/ast";
-import { toText } from "../logic/format";
 import type { ComponentInstance, Net, Netlist } from "../sim/types";
 import { Simulator } from "../sim/engine";
 import { FF_PINS, type SyncCircuit } from "./analyze";
@@ -37,7 +36,7 @@ export function circuitToNetlist(c: SyncCircuit, opts: { init?: number; name?: s
       return { net, level: 0 };
     }
     if (e.k === "not" && e.e.k === "var" && stateNames.has(e.e.name)) return { net: `${e.e.name}_N`, level: 0 };
-    const key = toText(e);
+    const key = JSON.stringify(e);
     const hit = cache.get(key);
     if (hit) return { net: hit, level: gateLevel.get(hit)! };
     let type: string;
@@ -89,9 +88,16 @@ export function circuitToNetlist(c: SyncCircuit, opts: { init?: number; name?: s
   c.ffs.forEach((ff) => {
     for (const p of FF_PINS[ff.type]) add(build(ff.inputs[p]!).net, `FF_${ff.name}`, p);
   });
+  // 每个输出经一个缓冲器得到独立网络，避免与其他输出、状态变量或输入共用网络名
   const outNets = c.outputs.map((o) => {
     const r = build(o.expr);
-    return { name: o.name, net: r.net };
+    const id = `BUF_${o.name}`;
+    comps.push({ id, type: "buf", label: o.name, x: 0, y: 0 });
+    add(r.net, id, "A");
+    const net = `OUT_NET_${o.name}`;
+    add(net, id, "Y");
+    pending.push({ id, level: r.level + 1 });
+    return { name: o.name, net };
   });
   // 布局：门按逻辑级数分列，触发器在最右侧
   const maxLevel = Math.max(0, ...pending.map((p) => p.level));
@@ -199,7 +205,7 @@ export function exprToNetlist(outputs: { name: string; expr: Expr }[], vars: str
       }
       return { net: id, level: 0 };
     }
-    const key = toText(e);
+    const key = JSON.stringify(e);
     const hit = cache.get(key);
     if (hit) return hit;
     const map = { not: "not", and: "and", or: "or", xor: "xor", xnor: "xnor" } as const;
@@ -216,7 +222,20 @@ export function exprToNetlist(outputs: { name: string; expr: Expr }[], vars: str
     cache.set(key, r);
     return r;
   };
-  const outs = outputs.map((o) => ({ name: o.name, ...build(o.expr) }));
+  const outs = outputs.map((o, i) => {
+    const r = build(o.expr);
+    // 输出直接是输入变量/常量，或与前面的输出共用网络时，加缓冲器得到独立网络
+    if (r.level === 0 || outputs.slice(0, i).some((p) => JSON.stringify(p.expr) === JSON.stringify(o.expr))) {
+      const id = `BUF_${o.name}`;
+      comps.push({ id, type: "buf", label: o.name, x: 0, y: 0 });
+      add(r.net, id, "A");
+      const net = `OUT_NET_${o.name}`;
+      add(net, id, "Y");
+      placed.push({ id, level: r.level + 1 });
+      return { name: o.name, net, level: r.level + 1 };
+    }
+    return { name: o.name, ...r };
+  });
   const counts = new Map<number, number>();
   for (const p of placed) {
     const k = counts.get(p.level) ?? 0;

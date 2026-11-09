@@ -39,7 +39,14 @@ export interface ComponentModel {
   /** 模型 C 的默认传播延迟（ns） */
   tpd?: number;
   /** 建立/保持时间检查（模型 C） */
-  timing?: { clock: string; data: string[]; setup: number; hold: number };
+  timing?: {
+    clock: string;
+    data: string[];
+    setup: number;
+    hold: number;
+    /** 本次有效沿真正影响次态的数据端（缺省为 data 全部），例如 74LS161 只有 \overline{LD}=0 时才检查 D 端 */
+    active?: (inp: (pin: string) => L) => string[];
+  };
   initState?(params: Params): Record<string, unknown>;
   evaluate(ctx: EvalCtx): EvalResult;
   /** 符号分析：组合元件的布尔函数（输出名 → 关于输入名的构造函数），见 lib/fsm/extract */
@@ -311,20 +318,17 @@ function ffModel(t: FFType): ComponentModel {
     initState: (p) => ({ q: initVal(p.init) }),
     evaluate: (c) => {
       let q = c.state.q as L;
+      const both = Boolean(c.state.both);
       const sd = c.connected("SD") ? c.in("SD") : 1;
       const rd = c.connected("RD") ? c.in("RD") : 1;
       // 异步端优先
       if (sd === 0 && rd === 0) {
-        return { out: { Q: 1, QN: 1 }, state: { q: 1 }, issue: { code: "forbidden-input", message: "异步置 1 与异步置 0 同时有效：Q 与 Q̄ 同为 1，撤销后状态不确定" } };
+        return { out: { Q: 1, QN: 1 }, state: { q: 1, both: true }, issue: { code: "forbidden-input", message: "异步置 1 与异步置 0 同时有效：Q 与 Q̄ 同为 1，撤销后状态不确定" } };
       }
       if (rd === 0 && sd === 1) return { out: { Q: 0, QN: 1 }, state: { q: 0 } };
       if (sd === 0 && rd === 1) return { out: { Q: 1, QN: 0 }, state: { q: 1 } };
-      if (!isKnown(sd) || !isKnown(rd)) {
-        // 异步端未知：结果可能被强制，也可能保持
-        const forced: L = !isKnown(rd) && sd === 1 ? 0 : !isKnown(sd) && rd === 1 ? 1 : LX;
-        q = merge(q, forced);
-        return { out: { Q: q, QN: not4(q) }, state: { q } };
-      }
+      // 两端同时有效后同时撤销：状态不确定
+      if (both && sd === 1 && rd === 1) q = LX;
       const falling = c.params.edge === "falling";
       const want = falling ? "fall" : "rise";
       const maybe = falling ? "xfall" : "xrise";
@@ -340,6 +344,11 @@ function ffModel(t: FFType): ComponentModel {
           return [r === "forbidden" ? LX : r];
         });
         q = e === maybe ? merge(q, next) : next;
+      }
+      if (!isKnown(sd) || !isKnown(rd)) {
+        // 异步端未知：可能被强制，也可能按时钟沿正常更新——两种结果合并
+        const forced: L = !isKnown(rd) && sd === 1 ? 0 : !isKnown(sd) && rd === 1 ? 1 : LX;
+        q = merge(q, forced);
       }
       return { out: { Q: q, QN: not4(q) }, state: { q }, issue };
     },
@@ -416,7 +425,13 @@ function counter16Model(type: "ls161" | "ls163"): ComponentModel {
     description: `${name}：4 位同步二进制计数器，${syncClear ? "同步" : "异步"}清零、同步置数、上升沿计数。`,
     defaultParams: { init: "X" },
     tpd: DEFAULT_SEQ_TPD,
-    timing: { clock: "CLK", data: ["EP", "ET", "LD", "D0", "D1", "D2", "D3", ...(syncClear ? ["RD"] : [])], setup: 20, hold: 3 },
+    timing: {
+      clock: "CLK",
+      data: ["EP", "ET", "LD", "D0", "D1", "D2", "D3", ...(syncClear ? ["RD"] : [])],
+      setup: 20,
+      hold: 3,
+      active: (inp) => ["EP", "ET", "LD", ...(syncClear ? ["RD"] : []), ...(inp("LD") !== 1 ? ["D0", "D1", "D2", "D3"] : [])],
+    },
     pins: () => [
       P("RD", "\\overline{R_D}", "in", syncClear ? "清零端，低电平有效，同步（在 CLK 上升沿生效）" : "清零端，低电平有效，异步（立即生效，不需要时钟）", { active: "low", datasheet: "CLR" }),
       P("LD", "\\overline{LD}", "in", "同步置数端，低电平有效：CLK 上升沿时把 D3～D0 装入", { active: "low", datasheet: "LOAD" }),
@@ -531,7 +546,21 @@ const ls194Model: ComponentModel = {
     "4 位双向移位寄存器，上升沿触发，\\overline{R_D} 异步清零。S1S0 = 00 保持，01 右移（Q0←D_SR，Q1←Q0…），10 左移（Q3←D_SL，Q2←Q3…），11 并行置数。",
   defaultParams: { init: "X" },
   tpd: DEFAULT_SEQ_TPD,
-  timing: { clock: "CLK", data: ["S0", "S1", "DSR", "DSL", "D0", "D1", "D2", "D3"], setup: 20, hold: 0 },
+  timing: {
+    clock: "CLK",
+    data: ["S0", "S1", "DSR", "DSL", "D0", "D1", "D2", "D3"],
+    setup: 20,
+    hold: 0,
+    active: (inp) => {
+      const s1 = inp("S1");
+      const s0 = inp("S0");
+      const r = ["S0", "S1"];
+      if (s1 !== 1 && s0 !== 0) r.push("DSR");
+      if (s1 !== 0 && s0 !== 1) r.push("DSL");
+      if (s1 !== 0 && s0 !== 0) r.push("D0", "D1", "D2", "D3");
+      return r;
+    },
+  },
   pins: () => [
     P("RD", "\\overline{R_D}", "in", "异步清零，低电平有效", { active: "low", datasheet: "CLR" }),
     P("S1", "S_1", "in", "工作方式选择 S1", { datasheet: "S1" }),

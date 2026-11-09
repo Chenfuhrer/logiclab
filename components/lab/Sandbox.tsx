@@ -137,7 +137,7 @@ export function Sandbox() {
     const r = extractSyncCircuit(simNl);
     if (!r.ok) return { reason: r.reason };
     try {
-      return { a: analyzeSync(r.circuit, 0) };
+      return { a: analyzeSync(r.circuit, r.initial), unknownInit: r.initialUnknown };
     } catch (e) {
       return { reason: (e as Error).message };
     }
@@ -317,6 +317,7 @@ export function Sandbox() {
             <p className="text-xs text-amber leading-relaxed">{analysis.reason}</p>
           ) : (
             <>
+              <p className="text-xs text-muted">主循环按触发器初态参数 {analysis.a!.initial.toString(2).padStart(analysis.a!.stateVars.length, "0")} 判定{analysis.unknownInit ? "（有触发器初态为 X，按 0 计）" : ""}；修改初态可改变用于判定的主循环。</p>
               <EquationsPanel a={analysis.a!} />
               <StateTablePanel a={analysis.a!} showDrives={false} />
             </>

@@ -43,7 +43,7 @@ export const merge = (a: L, b: L): L => (a === b ? a : LX);
 export function resolveX<T extends Record<string, L>>(inputs: T, keys: (keyof T)[], fn: (inp: T) => L[]): L[] {
   const unknown = keys.filter((k) => !isKnown(inputs[k]));
   if (unknown.length === 0) return fn(inputs);
-  if (unknown.length > 6) {
+  if (unknown.length > 12) {
     const r = fn(inputs);
     return r.map(() => LX);
   }

@@ -36,7 +36,7 @@ npm run build && npm run start
 ## 测试
 
 ```bash
-npm test                 # 430 个单元测试（逻辑、仿真、状态机、计数器、题库、计算器）
+npm test                 # 443 个单元测试（逻辑、仿真、状态机、计数器、题库、计算器）
 npm run test:exhaustive  # 全部 65536 个四变量函数的化简验证
 npm run typecheck && npm run lint && npm run check:mdx
 npm run test:e2e         # 44 个 Playwright 用例（36 个路由零运行错误 + 核心流程）

@@ -433,7 +433,12 @@ export class Simulator {
       const e = this.edgeOf(clkNet);
       const want = c.params.edge === "falling" ? "fall" : "rise";
       if (e === want) {
-        for (const p of tm.data) {
+        const readIn = (pin: string) => {
+          const ni = c.pinNet.get(pin);
+          return ni === undefined ? LX : asInput(this.nets[ni].value, ttl);
+        };
+        const checked = tm.active ? tm.active(readIn) : tm.data;
+        for (const p of checked) {
           const ni = c.pinNet.get(p);
           if (ni === undefined) continue;
           const lc = this.nets[ni].lastChange;
