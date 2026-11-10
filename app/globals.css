@@ -387,7 +387,7 @@ body {
   background: var(--panel-2);
   border: 1px solid var(--line);
 }
-.prose-lab pre {
+.prose-lab pre:not(.code-overlay) {
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -645,4 +645,26 @@ body {
   margin-bottom: 0.4rem;
   font-size: 0.92rem;
   line-height: 1.6;
+}
+
+/* Verilog 编辑器语法高亮 */
+.hl-kw {
+  color: var(--accent);
+}
+.hl-num {
+  color: var(--amber);
+}
+.hl-cm {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* 代码中不使用连字：Verilog 的 <= 是非阻塞赋值，不能显示成 ≤ */
+pre,
+code,
+textarea,
+.mono,
+.font-mono {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
 }

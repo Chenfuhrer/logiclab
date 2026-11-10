@@ -11,6 +11,7 @@ const GLYPH: Record<string, string> = {
   "fsm-designer": "M14 22 a8 8 0 1 0 0.1 0 M50 22 a8 8 0 1 0 0.1 0 M22 18 Q36 6 42 18 M42 26 Q36 38 22 26",
   logic: "M6 10 H30 A12 12 0 0 1 30 34 H6 Z M42 22 H70",
   sandbox: "M8 8 H26 V26 H8 Z M44 18 H62 V36 H44 Z M26 17 H35 V27 H44",
+  verilog: "M14 10 L4 22 L14 34 M60 10 L70 22 L60 34 M42 6 L32 38",
   timer555: "M4 34 Q14 8 24 14 L24 34 Q34 8 44 14 L44 34 Q54 8 64 14 L64 34",
 };
 

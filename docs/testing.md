@@ -25,8 +25,11 @@ Playwright 默认使用自己下载的 Chromium。本机若已有其他版本，
 | 题库 | `tests/unit/exercises.test.ts` | 186 题逐题：答案可被判分器判为正确、knowledge/lesson 存在、id 唯一、提示存在 |
 | 评审回归 | `tests/unit/review-regressions.test.ts` | 独立代码评审确认的 10 个问题 |
 | 555 定时器 | `tests/unit/timer555.test.ts` | 阈值与 CO、功能表优先级、RC 时间、多谐/单稳/施密特解析公式与时间步进仿真交叉校核、宽触发与重复触发、非法参数 |
+| Verilog | `tests/unit/hdl.test.ts`、`hdl-examples.test.ts` | 报错与行号、静态检查、逐位 x 语义、上下文位宽、阻塞/非阻塞、边沿约定；**电路 → Verilog 与电路仿真逐拍一致**（实验 A ×2、74LS161 ×5、设计向导）；三段式与状态表一致；12 个示例的预期结果 |
+| AI 助教 | `tests/unit/ai.test.ts` | 9 个工具的计算结果与非法输入；路由：未配置 503、工具循环（模拟 SDK）、拒答、请求校验 |
+| 存储器/PLD/转换器 | `memory.test.ts`、`converters.test.ts` | 容量与扩展、ROM 表、PLA 等价、LUT；DAC 两种网络一致、SAR = 量化、并联编码、双积分与 RC 无关 |
 | 计算器 | `tests/unit/numbers.test.ts`、`analog-models.test.ts` | 进制、补码、溢出、BCD/2421/余 3/格雷码、电平、上拉、时序 |
-| 端到端 | `tests/e2e/core.spec.ts` | 37 个路由零运行错误；555 实验三种接法；实验 A/B/C、逻辑工作台、模式切换、完成标记持久化、练习判分与错题本、主题切换（含移动端视口） |
+| 端到端 | `tests/e2e/core.spec.ts` | 42 个路由零运行错误；555 实验三种接法；Verilog 实验台与对照页；编译错误行号；AI 助教未配置提示（端到端测试会去掉 ANTHROPIC_* 环境变量）；实验 A/B/C、逻辑工作台、模式切换、完成标记持久化、练习判分与错题本、主题切换（含移动端视口） |
 
 ## 布局自检
 
@@ -37,3 +40,4 @@ Playwright 默认使用自己下载的 Chromium。本机若已有其他版本，
 - 未做性能基准测试；文中涉及耗时的描述均为定性。
 - 74HC 电平参数来自经验值，未对照数据手册（界面标注 ⚠️待验证）。
 - Playwright 只跑 Chromium，未测 Firefox/Safari。
+- AI 助教没有真实 API 调用测试；导出的 Testbench 没有在 iverilog 中运行（本机未安装）。

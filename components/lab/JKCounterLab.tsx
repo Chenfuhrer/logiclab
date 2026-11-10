@@ -10,6 +10,9 @@ import { Waveform, busFromBits } from "@/components/waveform/Waveform";
 import { EquationsPanel, StateTablePanel, DiagramPanel, SelfStartPanel } from "@/components/fsm/AnalysisPanels";
 import { Tex } from "@/components/ui/Tex";
 import { IssueList } from "./IssueList";
+import { useAssistantContext } from "@/lib/ai/context";
+import { VerilogExport } from "@/components/hdl/VerilogExport";
+import { netlistToVerilog, syncCircuitToVerilog } from "@/lib/hdl/codegen";
 import type { L } from "@/lib/sim/types";
 
 type Pin = keyof JKCounterConfig["drives"];
@@ -23,6 +26,7 @@ export function JKCounterLab() {
   const extracted = useMemo(() => extractSyncCircuit(netlist), [netlist]);
   const analysis = useMemo(() => (extracted.ok ? analyzeSync(extracted.circuit, cfg.init) : null), [extracted, cfg.init]);
   const { sim, version, step, run, stop, running } = useSimulation(netlist, { model });
+  useAssistantContext({ netlist, notes: `实验 A：J/K 接法 ${JSON.stringify(cfg.drives)}，${cfg.edge === "falling" ? "下降沿" : "上升沿"}，初态 ${cfg.init.toString(2).padStart(3, "0")}` }, [netlist]);
 
   const readState = (): number | null => {
     if (!sim) return null;
@@ -217,6 +221,15 @@ export function JKCounterLab() {
           {analysis && analysis.sequence.length === 9 && new Set(analysis.sequence.slice(0, 8)).size === 8 && <p className="text-xs text-muted">8 个状态构成一个循环：模 8 加法计数器，C 在 111 时为 1。</p>}
         </div>
       </section>
+      <div className="xl:col-span-2">
+        <VerilogExport
+          variants={[
+            ...(extracted.ok ? [{ label: "方程级", code: syncCircuitToVerilog(extracted.circuit, { name: "counter_jk", init: cfg.init, comment: "实验 A 当前接法" }), file: "counter_jk.v" }] : []),
+            { label: "结构化（网表）", code: netlistToVerilog(netlist, { name: "counter_jk_struct" }).code, file: "counter_jk_struct.v" },
+          ]}
+          note="方程级：每个触发器一个 reg，次态写成特性方程；结构化：门用 assign、触发器例化库模块。两种写法在单元测试中都与电路仿真逐拍比对过。"
+        />
+      </div>
     </div>
   );
 }

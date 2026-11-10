@@ -20,6 +20,9 @@
 │ exercises/ 题型定义与确定性判分                                                               │
 │ numbers/ analog-models/ 数制、编码、电平、上拉、时序计算                                        │
 │ storage/ 学习记录统一接口（Zustand + localStorage）                                           │
+│ hdl/     Verilog 子集：词法/语法分析、展开（层次扁平化）、四值逐位解释器、代码生成、示例库        │
+│ memory/  存储器容量扩展、ROM 表、PLA 阵列、LUT 映射                                            │
+│ ai/      AI 助教的确定性工具（调用上面各内核）与系统提示                                       │
 └──────────────────────────────────────────────────────────────────────────────────────────────┘
 content/  课程体系（course.ts）、知识图（knowledge.ts）、MDX 课时、题库、实验网表构造器
 ```
@@ -70,7 +73,33 @@ PinDef { name; label(LaTeX); dir; active: high|low; clock?: rising|falling|pulse
 - 课时正文为 MDX（`content/chapters/<ch>/<lesson>.mdx`），可用组件清单见 `docs/content-guide.md`；`scripts/gen-content.mjs` 在 dev/build/test 前生成静态导入表。
 - 三种学习模式通过 `<Mode show>` 块 + 外层 `data-learn-mode` 的 CSS 选择器切换，服务端渲染包含全部内容。
 
-## 6. 尚未采用的建议项与原因
+## 6. HDL 子系统（lib/hdl）
+
+```
+Verilog 文本 ──parser──▶ AST ──elaborate（扁平化、参数覆盖）──▶ 信号表 + 过程（组合 / 边沿）──HdlSim──▶ 波形
+本平台网表 / 方程 / 状态表 ──codegen──▶ Verilog 文本（结构化 / 方程级 / 三段式）+ 自检 Testbench
+```
+
+- 解释器语义：组合过程求不动点；输入变化后检测边沿 → 按源顺序执行边沿过程（阻塞立即、非阻塞排队）→ 统一提交 → 组合再稳定 → 若产生新边沿（异步复位）继续，delta 计数。与电路引擎的两阶段更新一致。
+- 交叉验证：`tests/unit/hdl.test.ts` 把实验 A、5 种 74LS161 设计、设计向导结果导出为 Verilog，用解释器运行，与 `lib/sim` 逐拍比对；三段式代码与 `runStateTable` 逐拍比对。两套实现互为参照。
+- 边沿约定：`set()` 中 x→0/x→1 与标准 Verilog 一样算边沿；0 时刻初值通过构造参数 `init` 给出（相当于 Testbench 中 `reg clk = 0;`），不产生边沿。
+
+## 7. AI 助教（app/api/assistant + lib/ai）
+
+```
+浏览器抽屉 ──POST（消息 + 页面上下文：课时/题目/作答/网表）──▶ /api/assistant（Node 运行时）
+   ▲                                                         │ Anthropic SDK：claude-opus-5-5，流式，effort medium，
+   │ NDJSON 事件：text / tool / notice / done / error         │ 服务端拒答回退 fallbacks:"default"，系统提示缓存
+   └──────────────────────────────────────────────────────────┤
+                                                              ▼ 手写工具循环（≤6 轮）：tool_use → 校验输入 → runTool → tool_result
+                                        lib/ai/tools.ts：化简 / 等价 / 真值表 / 同步分析 / 74LS161 / 序列检测器 / Verilog / 555 / 当前电路
+```
+
+- 密钥只在服务端（`ANTHROPIC_API_KEY`），未配置时 GET 报告未配置、POST 返回 503，界面给出说明。
+- 每个工具有 `additionalProperties: false` 的 schema，执行前逐字段校验，错误以 `is_error` 的 tool_result 返回；`max_tokens` / `refusal` 时不执行该轮工具。
+- 进程内限流（每 IP 10 分钟 30 次）、消息条数与长度上限；多实例部署需换成共享存储。
+
+## 8. 尚未采用的建议项与原因
 
 - **Web Worker**：当前最大的同步计算是两片 74LS161 的 256 个上电状态自启动检查（各 ≤300 拍），在浏览器中约百毫秒级（⚠️待验证，未做正式性能测试），暂未放入 Worker；`workers/` 目录保留。
 - **React Flow**：电路图用自写 SVG 渲染器，以便与仿真着色、国标符号、引脚说明深度集成。

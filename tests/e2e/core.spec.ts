@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
 const lessons = [...readFileSync("content/lessons.generated.ts", "utf8").matchAll(/"([a-z0-9-]+)":/g)].map((m) => m[1]);
-const ROUTES = ["/", "/learn", "/lab", "/lab/logic", "/lab/jk-counter", "/lab/ls161", "/lab/fsm-designer", "/lab/sandbox", "/lab/timer555", "/practice", "/review", "/about", "/learn/memory", ...lessons.map((l) => `/learn/${l}`)];
+const ROUTES = ["/", "/learn", "/lab", "/lab/logic", "/lab/jk-counter", "/lab/ls161", "/lab/fsm-designer", "/lab/sandbox", "/lab/timer555", "/lab/verilog", "/practice", "/review", "/about", ...lessons.map((l) => `/learn/${l}`)];
 
 function watchErrors(page: Page) {
   const errors: string[] = [];
@@ -78,7 +78,7 @@ test("课程：模式切换控制内容块，完成标记持久化", async ({ pa
   await page.reload();
   await expect(page.getByTestId("mark-done")).toContainText("已完成");
   await page.goto("/");
-  await expect(page.locator("header")).toContainText("1/24");
+  await expect(page.locator("header")).toContainText(/1\/\d+/);
 });
 
 test("练习：表达式题按逻辑等价判分，答错进入错题本", async ({ page }) => {
@@ -106,4 +106,29 @@ test("555 实验：三种接法切换，多谐振荡器参数与公式一致", a
   await expect(page.getByText(/仿真测得脉宽/)).toBeVisible();
   await page.getByRole("button", { name: "施密特触发器" }).click();
   await expect(page.getByText("1.67 V").first()).toBeVisible();
+});
+
+test("实验 E：Verilog 实验台运行计数器，对照页全部一致", async ({ page }) => {
+  await page.goto("/lab/verilog");
+  await expect(page.getByText("教学用 Verilog 子集解释器").first()).toBeVisible();
+  for (let i = 0; i < 3; i++) await page.getByRole("button", { name: /按示例激励走一拍/ }).click();
+  await expect(page.getByText("q = 001").or(page.locator("text=001")).first()).toBeVisible();
+  await page.getByRole("tab", { name: "电路 ↔ Verilog 对照" }).click();
+  await expect(page.getByText(/全部 \d+ 拍一致/)).toBeVisible();
+  await page.getByLabel("电路来源").selectOption("fsm");
+  await expect(page.getByText(/全部 \d+ 拍一致/)).toBeVisible();
+});
+
+test("Verilog 编译错误给出行号", async ({ page }) => {
+  await page.goto("/lab/verilog");
+  const ed = page.getByLabel("Verilog 代码");
+  await ed.fill("module m(input a, output y);\n  assign y = b;\nendmodule\n");
+  await page.getByRole("button", { name: /编译并重置/ }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "编译" })).toContainText("第 2 行");
+});
+
+test("AI 助教：未配置密钥时说明原因，其他功能正常", async ({ page }) => {
+  await page.goto("/learn/kmap");
+  await page.getByRole("button", { name: "AI 助教" }).click();
+  await expect(page.getByRole("dialog", { name: "AI 助教" })).toContainText("尚未启用");
 });

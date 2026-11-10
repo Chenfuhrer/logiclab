@@ -2,6 +2,7 @@
 import type { ComponentType } from "react";
 
 export const LESSON_LOADERS: Record<string, () => Promise<{ default: ComponentType }>> = {
+  "adc-dac": () => import("./chapters/ch10/adc-dac.mdx"),
   "async-analysis": () => import("./chapters/ch6/async-analysis.mdx"),
   "basic-ops": () => import("./chapters/ch2/basic-ops.mdx"),
   "canonical": () => import("./chapters/ch2/canonical.mdx"),
@@ -15,7 +16,9 @@ export const LESSON_LOADERS: Record<string, () => Promise<{ default: ComponentTy
   "kmap": () => import("./chapters/ch2/kmap.mdx"),
   "latches": () => import("./chapters/ch5/latches.mdx"),
   "levels": () => import("./chapters/ch3/levels.mdx"),
+  "memory": () => import("./chapters/ch8/memory.mdx"),
   "number-systems": () => import("./chapters/ch1/number-systems.mdx"),
+  "pld": () => import("./chapters/ch9/pld.mdx"),
   "registers": () => import("./chapters/ch6/registers.mdx"),
   "seq-basics": () => import("./chapters/ch6/seq-basics.mdx"),
   "sequence-detector": () => import("./chapters/ch6/sequence-detector.mdx"),
@@ -26,4 +29,6 @@ export const LESSON_LOADERS: Record<string, () => Promise<{ default: ComponentTy
   "timing": () => import("./chapters/ch6/timing.mdx"),
   "triggering": () => import("./chapters/ch5/triggering.mdx"),
   "tristate-oc": () => import("./chapters/ch3/tristate-oc.mdx"),
+  "verilog": () => import("./chapters/ch11/verilog.mdx"),
+  "verilog-seq": () => import("./chapters/ch11/verilog-seq.mdx"),
 };

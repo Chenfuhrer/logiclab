@@ -24,6 +24,7 @@ import {
 } from "@/lib/logic";
 import { checkCover, type CellValue } from "@/lib/logic/kmap";
 import { exprToNetlist } from "@/lib/fsm/netlistgen";
+import { combToVerilog } from "@/lib/hdl/codegen";
 import { Tex } from "@/components/ui/Tex";
 import { KMap, GROUP_COLORS } from "@/components/karnaugh/KMap";
 import { Schematic } from "@/components/circuit/Schematic";
@@ -96,7 +97,7 @@ function TT({ vars, cols, highlightRow }: { vars: string[]; cols: { name: string
 export function ExprLab({ initial = "AB+A'C+BC", full = false }: { initial?: string; full?: boolean }) {
   const [src, setSrc] = useState(initial);
   const [cmp, setCmp] = useState("");
-  const [tab, setTab] = useState<"table" | "kmap" | "circuit">("kmap");
+  const [tab, setTab] = useState<"table" | "kmap" | "circuit" | "verilog">("kmap");
   const neg = useNeg();
   const r = useMemo(() => tryParse(src), [src]);
   const data = useMemo(() => {
@@ -175,6 +176,7 @@ export function ExprLab({ initial = "AB+A'C+BC", full = false }: { initial?: str
                     ["kmap", "卡诺图"],
                     ["table", "真值表"],
                     ["circuit", "逻辑图"],
+                    ["verilog", "Verilog"],
                   ] as const
                 ).map(([k, l]) => (
                   <button key={k} role="tab" aria-selected={tab === k} className={`btn btn-sm ${tab === k ? "!border-accent !text-accent" : "btn-ghost"}`} onClick={() => setTab(k)}>
@@ -196,6 +198,12 @@ export function ExprLab({ initial = "AB+A'C+BC", full = false }: { initial?: str
                 ) : (
                   <p className="text-sm text-muted">卡诺图适用于 2～5 个变量（当前 {data.vars.length} 个）。</p>
                 ))}
+              {tab === "verilog" && (
+                <div className="space-y-1.5">
+                  <pre className="card-inset p-3 text-[12px] leading-[1.55] overflow-auto thin-scroll mono">{combToVerilog([{ name: "Y", expr: data.sop && data.ones.length ? solutionToSOP(data.sop) : r.expr }], data.vars, "expr_min")}</pre>
+                  <p className="text-xs text-muted">按最简与或式生成的连续赋值；可复制到实验 E 的 Verilog 实验台中运行。</p>
+                </div>
+              )}
               {tab === "circuit" && netlist && <LiveCircuit netlist={netlist} height={Math.max(220, data.vars.length * 64 + 40)} hint="直接按表达式结构画出的逻辑图（未化简）。点击左侧开关改变输入，导线颜色实时反映电平。" />}
             </>
           )}

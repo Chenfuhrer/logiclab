@@ -7,6 +7,9 @@ import { Schematic } from "@/components/circuit/Schematic";
 import { Waveform, busFromBits, type Channel } from "@/components/waveform/Waveform";
 import { Tex } from "@/components/ui/Tex";
 import { IssueList } from "./IssueList";
+import { useAssistantContext } from "@/lib/ai/context";
+import { VerilogExport } from "@/components/hdl/VerilogExport";
+import { netlistToVerilog } from "@/lib/hdl/codegen";
 import { Readout } from "./JKCounterLab";
 import type { L } from "@/lib/sim/types";
 
@@ -23,6 +26,7 @@ export function LS161Lab() {
   const netlist = useMemo(() => (err ? null : buildCounterNetlist(d)), [d, err]);
   const verification = useMemo(() => (err ? null : verifyCounter(d, d.chips === 2 ? 300 : 120)), [d, err]);
   const { sim, version, step, run, stop, running } = useSimulation(netlist, { model });
+  useAssistantContext({ netlist: netlist ?? undefined, notes: `实验 B：目标 N=${d.N}，方法 ${d.method}，${d.part ?? "ls161"}，${d.chips} 片` }, [netlist]);
   void version;
   const W = d.chips * 4;
   const bus = (): number | null => {
@@ -184,6 +188,11 @@ export function LS161Lab() {
           </div>
         )}
       </section>
+      {netlist && (
+        <div className="xl:col-span-2">
+          <VerilogExport variants={[{ label: "结构化", code: netlistToVerilog(netlist, { name: `mod${d.N}_counter` }).code, file: `mod${d.N}_counter.v` }]} note="74LS161/163 用行为级库模块描述（异步清零写进敏感列表，同步置数写在时钟分支内），反馈译码用 assign。" />
+        </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,11 @@ import { LevelsLab } from "@/components/widgets/LevelsLab";
 import { OCPullupLab } from "@/components/widgets/OCPullupLab";
 import { TimingCalc } from "@/components/widgets/TimingCalc";
 import { Timer555Lab } from "@/components/widgets/Timer555Lab";
+import { VerilogLab } from "@/components/hdl/VerilogLab";
+import { MemoryLab } from "@/components/widgets/MemoryLab";
+import { PLDLab } from "@/components/widgets/PLDLab";
+import { DACLab } from "@/components/widgets/DACLab";
+import { ADCLab } from "@/components/widgets/ADCLab";
 
 function text(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -51,4 +56,9 @@ export const mdxComponents: MDXComponents = {
   ExperimentCard,
   Quiz,
   Timer555Lab,
+  VerilogLab,
+  MemoryLab,
+  PLDLab,
+  DACLab,
+  ADCLab,
 };

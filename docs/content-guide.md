@@ -86,7 +86,12 @@
 | `<SeqDetectorDemo seq="101" kind="mealy" overlap={true} />` | `seq`、`kind`(`mealy`/`moore`)、`overlap` | 自动生成原始状态表与状态图，可跳转到设计向导 |
 | `<TimingCalc />` | 无 | f_max、建立/保持裕量计算 |
 | `<Timer555Lab mode="astable" />` | `mode`: `astable`（多谐振荡器）`monostable`（单稳态）`schmitt`（施密特触发器） | 555 内部结构（比较器 C1/C2、锁存器、放电管状态）+ 电容电压与输出波形 + 参数计算，**模型 E：教学近似模型** |
-| `<ExperimentCard id="jk-counter" />` | `id`: `jk-counter` `ls161` `fsm-designer` `logic` `sandbox` | 实验入口卡片 |
+| `<MemoryLab mode="rom" />` | `mode`: `rom`（用 ROM 实现组合函数）`expand`（位扩展/字扩展） | 第 8 章 |
+| `<PLDLab mode="pla" />` | `mode`: `pla`（与或阵列编程）`lut`（逻辑函数映射到 LUT） | 第 9 章 |
+| `<DACLab />` | 无 | 权电阻 / R-2R DAC，模型 E 教学近似 |
+| `<ADCLab mode="sar" />` | `mode`: `sar`（逐次逼近）`flash`（并联比较）`dual-slope`（双积分） | 模型 E 教学近似 |
+| `<VerilogLab example="counter3" />` | `example`：见 `lib/hdl/examples.ts` 的 id；可选 `height` | Verilog 子集解释器 + 波形，**教学用子集解释器，不是完整 HDL 仿真器** |
+| `<ExperimentCard id="jk-counter" />` | `id`: `jk-counter` `ls161` `fsm-designer` `timer555` `verilog` `logic` `sandbox` | 实验入口卡片 |
 | `<Quiz lesson="kmap" />` | `lesson` | 显示该课时题库中的全部题目（按基础/分析/设计分层），可提交判分。放在"分层练习"部分 |
 
 ### 5.1 `Derivation` 的 rule 取值

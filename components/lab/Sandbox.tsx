@@ -8,6 +8,10 @@ import { geometry } from "@/components/circuit/geometry";
 import { useSimulation } from "@/hooks/useSimulation";
 import { Waveform, type Channel } from "@/components/waveform/Waveform";
 import { IssueList } from "./IssueList";
+import { useAssistantContext } from "@/lib/ai/context";
+import { netlistToVerilog } from "@/lib/hdl/codegen";
+import { DRAFT_KEY } from "@/components/hdl/HdlCompare";
+import { useRouter } from "next/navigation";
 import { extractSyncCircuit } from "@/lib/fsm/extract";
 import { analyzeSync } from "@/lib/fsm/analyze";
 import { EquationsPanel, StateTablePanel } from "@/components/fsm/AnalysisPanels";
@@ -27,6 +31,7 @@ const EMPTY: Netlist = { version: 1, name: "我的电路", components: [], nets:
 const snap = (v: number) => Math.round(v / 10) * 10;
 
 export function Sandbox() {
+  const router = useRouter();
   const [nl, setNl] = useState<Netlist>(EMPTY);
   const [loaded, setLoaded] = useState(false);
   const [sel, setSel] = useState<string | null>(null);
@@ -57,6 +62,7 @@ export function Sandbox() {
   const topoKey = JSON.stringify({ c: nl.components.map((c) => [c.id, c.type, c.params]), n: nl.nets });
   const simNl = useMemo(() => nl, [topoKey, resetN]); // eslint-disable-line react-hooks/exhaustive-deps
   const sim = useSimulation(simNl.components.length ? simNl : null, { model });
+  useAssistantContext({ netlist: simNl.components.length ? simNl : undefined, notes: "自由实验台中学生自己搭的电路" }, [simNl]);
   void sim.version;
 
   const toSvg = (e: { clientX: number; clientY: number }) => {
@@ -199,6 +205,18 @@ export function Sandbox() {
                 }}
               />
             </label>
+            <button
+              className="btn btn-sm"
+              disabled={!nl.components.length}
+              onClick={() => {
+                const g = netlistToVerilog(nl, { name: "sandbox" });
+                if (g.unsupported.length) alert(`以下元件不能导出为 Verilog，将被忽略：\n${g.unsupported.join("\n")}`);
+                localStorage.setItem(DRAFT_KEY, g.code);
+                router.push("/lab/verilog?draft=1");
+              }}
+            >
+              导出 Verilog →
+            </button>
             <button className="btn btn-sm text-danger" onClick={() => confirm("清空画布？") && setNl(EMPTY)}>
               清空
             </button>

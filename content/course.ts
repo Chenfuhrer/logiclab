@@ -135,7 +135,7 @@ export const CHAPTERS: Chapter[] = [
     title: "半导体存储器",
     en: "Semiconductor Memory",
     outline: ["ROM、PROM、EPROM、EEPROM、Flash", "SRAM 与 DRAM", "存储容量与地址译码", "位扩展与字扩展", "用 ROM 实现逻辑函数"],
-    lessons: [{ id: "memory", title: "存储器与容量扩展", summary: "地址译码、位扩展与字扩展。", status: "planned", prereqs: ["decoder-mux"], knowledge: ["memory"] }],
+    lessons: [{ id: "memory", title: "半导体存储器与容量扩展", summary: "ROM/RAM 的结构与分类、存储容量、地址译码、位扩展与字扩展，以及用 ROM 实现组合逻辑函数。", status: "ready", minutes: 45, prereqs: ["decoder-mux"], knowledge: ["memory", "rom", "ram", "memory-expansion"] }],
   },
   {
     id: "ch9",
@@ -143,7 +143,7 @@ export const CHAPTERS: Chapter[] = [
     title: "可编程逻辑器件",
     en: "Programmable Logic",
     outline: ["PLA、PAL、GAL", "CPLD", "FPGA 与 LUT", "逻辑函数映射到 LUT"],
-    lessons: [{ id: "pld", title: "从 PLA 到 FPGA 的 LUT", summary: "与或阵列与查找表。", status: "planned", prereqs: ["canonical"], knowledge: ["pld"] }],
+    lessons: [{ id: "pld", title: "从 PLA、PAL 到 FPGA 的查找表", summary: "可编程与阵列/或阵列、PAL/GAL、CPLD 与 FPGA 结构，以及把逻辑函数映射到 LUT。", status: "ready", minutes: 40, prereqs: ["canonical", "memory"], knowledge: ["pld", "pla", "lut"] }],
   },
   {
     id: "ch10",
@@ -151,7 +151,7 @@ export const CHAPTERS: Chapter[] = [
     title: "数模与模数转换",
     en: "D/A & A/D Conversion",
     outline: ["权电阻网络与 R-2R DAC", "采样、保持、量化、编码", "逐次逼近 ADC", "并联比较 ADC", "双积分 ADC", "分辨率与量化误差"],
-    lessons: [{ id: "adc-dac", title: "DAC 与 ADC", summary: "R-2R 网络与逐次逼近。", status: "planned", prereqs: ["number-systems"], knowledge: ["adc-dac"] }],
+    lessons: [{ id: "adc-dac", title: "数模与模数转换", summary: "权电阻与 R-2R 网络 DAC；采样、保持、量化、编码；逐次逼近、并联比较、双积分 ADC；分辨率与量化误差（教学近似模型）。", status: "ready", minutes: 50, prereqs: ["number-systems"], knowledge: ["adc-dac", "dac", "adc", "quantization"] }],
   },
   {
     id: "ch11",
@@ -159,7 +159,10 @@ export const CHAPTERS: Chapter[] = [
     title: "Verilog HDL 入门",
     en: "Verilog HDL",
     outline: ["module 与端口", "wire / reg / logic", "assign 与 always", "组合与时序描述", "阻塞与非阻塞赋值", "计数器与状态机", "Testbench"],
-    lessons: [{ id: "verilog", title: "Verilog 对照学习", summary: "同一个计数器的电路图、状态表与 Verilog 描述对照（本平台不含 HDL 编译器，不执行 Verilog 仿真）。", status: "planned", prereqs: ["sync-design"], knowledge: ["verilog"] }],
+    lessons: [
+      { id: "verilog", title: "Verilog 入门：模块与组合逻辑", summary: "module、端口、wire/reg、assign 与 always @(*)，把真值表与逻辑图写成 Verilog，并与本平台的电路对照。", status: "ready", minutes: 45, prereqs: ["comb-design"], experiments: ["verilog"], knowledge: ["verilog", "verilog-comb"] },
+      { id: "verilog-seq", title: "Verilog 时序逻辑、状态机与 Testbench", summary: "always @(posedge clk)、阻塞与非阻塞赋值、计数器与状态机的写法、Testbench 的结构。", status: "ready", minutes: 55, prereqs: ["verilog", "sync-design"], experiments: ["verilog"], knowledge: ["verilog-seq", "blocking-nonblocking", "verilog-fsm", "testbench"] },
+    ],
   },
 ];
 
@@ -179,5 +182,6 @@ export const EXPERIMENTS = [
   { id: "fsm-designer", href: "/lab/fsm-designer", title: "实验 C · 同步时序逻辑设计向导", summary: "从状态表或序列检测器模板出发，化简、编码、求方程、检查自启动并仿真验证。", lesson: "sync-design" },
   { id: "timer555", href: "/lab/timer555", title: "实验 D · 555 定时器", summary: "施密特、单稳态、多谐振荡三种接法；内部比较器与放电管状态随时间可视化（模型 E 教学近似）。", lesson: "timer555" },
   { id: "logic", href: "/lab/logic", title: "逻辑工作台", summary: "表达式 ↔ 真值表 ↔ 卡诺图 ↔ 逻辑图，自动化简与等价验证。", lesson: "kmap" },
+  { id: "verilog", href: "/lab/verilog", title: "实验 E · Verilog 对照实验台", summary: "电路 ↔ Verilog：一键导出本平台电路的 Verilog；内置教学用 Verilog 子集解释器运行波形，并与电路仿真逐拍比对。", lesson: "verilog-seq" },
   { id: "sandbox", href: "/lab/sandbox", title: "自由电路实验台", summary: "拖放元件、连线、四值仿真、波形与自动符号分析。", lesson: "sync-analysis" },
 ] as const;

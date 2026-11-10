@@ -10,6 +10,7 @@ import { Waveform } from "@/components/waveform/Waveform";
 import { tryParse, toLatex, parseExpr } from "@/lib/logic";
 import { stateBits, FF_PINS } from "@/lib/fsm/analyze";
 import { useLab } from "@/lib/storage/store";
+import { useAssistant } from "@/lib/ai/context";
 import type { CellValue } from "@/lib/logic/kmap";
 import type { TracePoint } from "@/lib/sim/types";
 
@@ -22,6 +23,7 @@ export function ExercisePlayer({ ex, index }: { ex: Exercise; index?: number }) 
   const [tries, setTries] = useState(0);
   const [reveal, setReveal] = useState(false);
   const [answer, setAnswer] = useState<Answer | null>(null);
+  const ask = useAssistant((s) => s.ask);
   const submit = () => {
     if (!answer) return;
     const r = grade(ex, answer);
@@ -52,6 +54,17 @@ export function ExercisePlayer({ ex, index }: { ex: Exercise; index?: number }) 
             {result?.correct ? "查看解析" : "放弃并看解析"}
           </button>
         )}
+        <button
+          className="btn btn-sm btn-ghost"
+          onClick={() =>
+            ask(result && !result.correct ? "我这道题哪里错了？先给我提示，不要直接告诉我答案。" : "这道题应该从哪里入手？给我一点提示。", {
+              exercise: `${ex.title}\n${ex.prompt}${ex.kind === "choice" ? "\n选项：" + ex.options.map((o, i) => `${String.fromCharCode(65 + i)}. ${o}`).join("；") : ""}`,
+              answer: answer ? JSON.stringify(answer) + (result ? `（判分反馈：${result.feedback}）` : "") : undefined,
+            })
+          }
+        >
+          问 AI
+        </button>
         {result && (
           <span role="status" className={`text-sm ${result.correct ? "text-accent" : result.partial ? "text-amber" : "text-danger"}`}>
             {result.correct ? "✓ " : result.partial ? "△ " : "✕ "}

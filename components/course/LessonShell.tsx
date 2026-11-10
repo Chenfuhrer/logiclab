@@ -2,6 +2,8 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useHydrated, useLab, type LearnMode } from "@/lib/storage/store";
+import { useAssistantContext } from "@/lib/ai/context";
+import { findLesson } from "@/content/course";
 
 const MODES: { k: LearnMode; label: string; desc: string }[] = [
   { k: "basic", label: "基础解释", desc: "类比、直观、逐步" },
@@ -16,6 +18,7 @@ export function LessonShell({ lesson, children }: { lesson: string; children: Re
   const visit = useLab((s) => s.visit);
   const h = useHydrated();
   useEffect(() => visit(lesson), [lesson, visit]);
+  useAssistantContext({ lesson: `${findLesson(lesson)?.title ?? lesson}（${lesson}）`, title: findLesson(lesson)?.title }, [lesson]);
   const m = h ? mode : "basic";
   return (
     <div data-learn-mode={m}>

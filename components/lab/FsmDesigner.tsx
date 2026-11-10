@@ -13,6 +13,8 @@ import { SelfStartPanel } from "@/components/fsm/AnalysisPanels";
 import { Schematic } from "@/components/circuit/Schematic";
 import { Waveform, busFromBits } from "@/components/waveform/Waveform";
 import { useLab } from "@/lib/storage/store";
+import { VerilogExport } from "@/components/hdl/VerilogExport";
+import { stateTableToVerilog, syncCircuitToVerilog } from "@/lib/hdl/codegen";
 
 type Source = "detector" | "custom";
 
@@ -43,7 +45,7 @@ function Step({ n, children, aside }: { n: number; children: React.ReactNode; as
   );
 }
 
-const STEP_TITLES = ["定义输入输出", "原始状态表", "状态化简", "状态编码", "选择触发器", "次态真值表", "卡诺图", "状态方程", "驱动方程", "输出方程", "逻辑图", "自启动检查", "仿真验证"];
+const STEP_TITLES = ["定义输入输出", "原始状态表", "状态化简", "状态编码", "选择触发器", "次态真值表", "卡诺图", "状态方程", "驱动方程", "输出方程", "逻辑图", "自启动检查", "仿真验证", "Verilog 描述"];
 
 export function FsmDesigner({ initialSeq = "101", initialKind = "mealy", initialOverlap = true }: { initialSeq?: string; initialKind?: "mealy" | "moore"; initialOverlap?: boolean }) {
   const [source, setSource] = useState<Source>("detector");
@@ -363,6 +365,15 @@ export function FsmDesigner({ initialSeq = "101", initialKind = "mealy", initial
                       <p className="text-xs text-muted mt-2">期望值由原始状态表逐拍计算；仿真值由生成的门级电路在仿真引擎中运行得到，两者独立。</p>
                     </>
                   )}
+                </Step>
+                <Step n={14}>
+                  <VerilogExport
+                    variants={[
+                      { label: "行为级三段式", code: stateTableToVerilog(reduced, syn.s.codes, { name: "fsm_design" }), file: "fsm_design.v" },
+                      { label: "方程级", code: syncCircuitToVerilog(syn.s.circuit, { name: "fsm_equations", init: syn.s.codes[reduced.initial ?? 0] }), file: "fsm_equations.v" },
+                    ]}
+                    note="行为级：状态寄存器 / 次态逻辑 / 输出逻辑三段，带异步复位 rst_n；方程级：直接写出上面求得的驱动方程。两种写法都由解释器测试与状态表逐拍比对过。"
+                  />
                 </Step>
               </>
             )}

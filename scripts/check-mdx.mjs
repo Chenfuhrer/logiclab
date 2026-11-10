@@ -7,7 +7,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ALLOWED = new Set(["Mode", "Callout", "Example", "Solution", "ExprLab", "TruthTable", "KMapLab", "Derivation", "GateLab", "BaseConverter", "ComplementLab", "CodeLab", "LevelsLab", "OCPullupLab", "TriStateBusLab", "Decoder138Lab", "Mux151Lab", "HazardLab", "LatchLab", "TriggerCompare", "FFLab", "SyncAnalyzer", "RippleCounterLab", "ShiftRegisterLab", "SeqDetectorDemo", "TimingCalc", "ExperimentCard", "Quiz", "Timer555Lab"]);
+const ALLOWED = new Set(["Mode", "Callout", "Example", "Solution", "ExprLab", "TruthTable", "KMapLab", "Derivation", "GateLab", "BaseConverter", "ComplementLab", "CodeLab", "LevelsLab", "OCPullupLab", "TriStateBusLab", "Decoder138Lab", "Mux151Lab", "HazardLab", "LatchLab", "TriggerCompare", "FFLab", "SyncAnalyzer", "RippleCounterLab", "ShiftRegisterLab", "SeqDetectorDemo", "TimingCalc", "ExperimentCard", "Quiz", "Timer555Lab", "MemoryLab", "PLDLab", "DACLab", "ADCLab", "VerilogLab"]);
 const root = fileURLToPath(new URL("../content/chapters", import.meta.url));
 const only = process.argv[2];
 let bad = 0;

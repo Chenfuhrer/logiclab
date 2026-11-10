@@ -9,7 +9,7 @@ const MODELS = [
   ["B", "四值逻辑模型", "0、1、X（未知）、Z（高阻）。未初始化状态为 X；三态总线按驱动解析，多个使能输出相反时为 X 并报冲突；OC/OD 输出线与，缺上拉时警告。X 采用“分别代入 0 和 1，结果一致才确定”的精确传播。", "已实现"],
   ["C", "事件驱动延迟模型", "事件队列 + delta 周期；采用传输延迟（transport delay），不吞窄脉冲。可观察冒险毛刺、纹波延迟、74LS161 异步清零瞬态、建立/保持时间违例（违例时触发器状态记为 X）。默认 tpd：门 10 ns、触发器与中规模器件 20 ns，为教学示意值。", "已实现"],
   ["D", "电气教学模型", "电平阈值、噪声容限、扇出、OC 上拉电阻范围、时序裕量。74LS 参数取自 TI SN74LS00 数据手册（⚠️待验证），74HC 为典型量级（⚠️待验证）。", "已实现（计算器）"],
-  ["E", "模拟近似模型", "555 定时器：理想比较器与锁存器、放电管导通电阻为 0，RC 按指数规律充放电；解析公式与时间步进仿真在单元测试中相互校核。界面标注“教学近似模型”。DAC/ADC 尚未实现。", "555 已实现"],
+  ["E", "模拟近似模型", "555 定时器（理想比较器与锁存器、放电管导通电阻为 0，RC 指数充放电）与 DAC/ADC（理想运放与开关、电阻精确匹配、比较器无失调）；解析公式在单元测试中与独立计算相互校核。界面标注“教学近似模型”。", "已实现"],
 ];
 
 export default function AboutPage() {
@@ -78,12 +78,26 @@ export default function AboutPage() {
       </section>
 
       <section className="space-y-3">
+        <h2 className="font-[family-name:var(--font-cjk-serif)] text-xl font-bold">HDL 与 AI 助教</h2>
+        <div className="card p-4 text-sm text-ink-2 space-y-2 leading-relaxed">
+          <p>
+            <strong className="text-ink">Verilog 子集解释器</strong>：支持 module/端口、wire/reg/parameter、assign、always @(*) 与 @(posedge/negedge …)、if/case、阻塞与非阻塞赋值、模块例化与参数覆盖，信号 ≤32 位，逐位 0/1/x；按时钟周期推进、零延迟，同一时刻内按 delta 轮次处理非阻塞赋值与异步复位。不支持 initial、# 延迟、$ 系统任务、function/task、generate、signed、z。静态检查多驱动、锁存器推断、敏感列表不完整、同一沿上的阻塞赋值竞争。
+          </p>
+          <p>
+            <strong className="text-ink">交叉验证</strong>：实验 A、多种 74LS161 设计、设计向导结果导出的 Verilog，在测试中由解释器运行，与电路仿真引擎逐拍比对一致；导出的三段式状态机与原始状态表逐拍一致。导出的自检 Testbench 面向真实仿真器，本平台没有执行它。
+          </p>
+          <p>
+            <strong className="text-ink">AI 助教</strong>：服务端调用 Claude（claude-opus-5-5，开启服务端拒答回退 fallbacks: &quot;default&quot;），密钥只保存在服务端环境变量。化简、等价验证、状态表、计数器模数、序列检测器设计、Verilog 运行、555 计算、读取当前页面电路，都通过工具调用平台的确定性求解器与仿真引擎完成；提问时会把当前页面的题目、作答或电路发送到本站服务端。未配置密钥时其余功能不受影响。
+          </p>
+        </div>
+      </section>
+
+      <section className="space-y-3">
         <h2 className="font-[family-name:var(--font-cjk-serif)] text-xl font-bold">尚未完成</h2>
         <ul className="card p-4 text-sm text-ink-2 space-y-1.5 list-disc pl-8">
-          <li>第 8～11 章（存储器、PLD、ADC/DAC、Verilog）只有提纲，标为“规划中”。</li>
-          <li>74LS148、153、283、85、160、162、290 等器件模型；独热码编码；不完全确定状态表的化简。</li>
-          <li>Verilog：本平台没有 HDL 编译器，不执行也不声称执行 Verilog 仿真。</li>
-          <li>AI 助手：需要在服务端配置 ANTHROPIC_API_KEY 才会启用；未配置时其余功能不受影响。</li>
+          <li>器件模型尚缺 74LS148/153/283/85/160/162/290；三态与 OC 网络不能导出为 Verilog。</li>
+          <li>独热码编码；不完全确定状态表的化简。</li>
+          <li>Verilog：平台内置的是教学用 Verilog 子集解释器（见下方“HDL 与 AI 助教”），不是完整的 HDL 仿真器；完整语言特性请下载 .v 与自检 Testbench 到 iverilog 等工具中运行。</li>
         </ul>
       </section>
     </main>

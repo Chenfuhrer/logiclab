@@ -3,6 +3,7 @@ import { Instrument_Serif, IBM_Plex_Sans, JetBrains_Mono, Noto_Serif_SC } from "
 import "./globals.css";
 import { TopBar } from "@/components/layout/TopBar";
 import { Footer } from "@/components/layout/Footer";
+import { Assistant } from "@/components/ai/Assistant";
 
 const instrument = Instrument_Serif({ variable: "--font-instrument", subsets: ["latin"], weight: "400", style: ["normal", "italic"] });
 const plex = IBM_Plex_Sans({ variable: "--font-plex", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <TopBar />
         <div className="flex-1 flex flex-col">{children}</div>
         <Footer />
+        <Assistant />
       </body>
     </html>
   );
