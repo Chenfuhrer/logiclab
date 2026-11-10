@@ -15,7 +15,8 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] }, grep: /@mobile/ },
   ],
   // 去掉 ANTHROPIC_* 变量：端到端测试检查“未配置密钥”时的行为，不发起付费调用
-  webServer: {
+  // 测试已部署的静态站点（PAGES_URL）时不需要启动本地服务
+  webServer: process.env.PAGES_URL ? undefined : {
     command: `env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u ANTHROPIC_BASE_URL npx next start -p ${PORT}`,
     port: PORT,
     reuseExistingServer: false,
