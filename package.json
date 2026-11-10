@@ -16,7 +16,8 @@
     "predev": "node scripts/gen-content.mjs",
     "prebuild": "node scripts/gen-content.mjs",
     "pretest": "node scripts/gen-content.mjs",
-    "check:mdx": "node scripts/check-mdx.mjs"
+    "check:mdx": "node scripts/check-mdx.mjs",
+    "build:pages": "node scripts/gen-content.mjs && node scripts/build-pages.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

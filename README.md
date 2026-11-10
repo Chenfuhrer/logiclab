@@ -4,6 +4,8 @@
 >
 > 每一个逻辑结论都能被验证，每一个状态变化都能被观察，每一个电路设计都能通过实验检验。
 
+**在线访问：https://chenfuhrer.github.io/logiclab/** （GitHub Pages 静态版本；课程、实验、练习、学习记录全部在浏览器中运行，不含需要服务端的 AI 助教）
+
 面向电子信息类本科生的数字电子技术学习平台。课程、实验、练习共用同一套**逻辑求解器**与**事件驱动仿真引擎**：页面上的方程、状态表、状态图和波形都是从电路计算出来的，不是预先画好的动画。
 
 ## 现在能做什么
@@ -84,6 +86,11 @@ tests/        单元、穷举、端到端测试
 ## 尚未完成
 
 74LS148/153/283/85/160/162/290 器件模型；三态与 OC 网络的 Verilog 导出；独热码与不完全确定状态表化简。AI 助教的真实模型调用尚未在开发环境中实测（见 docs/PROGRESS.md）。
+
+## 部署
+
+- **GitHub Pages（静态版）**：推送到 `main` 后，`.github/workflows/pages.yml` 自动执行类型检查、单元测试、`npm run build:pages`（静态导出到 `out/`，子路径 `/logiclab`），然后部署。静态版不含 `/api/assistant`。本地预览静态版：`npm run build:pages`，把 `out/` 以 `/logiclab/` 路径提供，再运行 `PAGES_URL=http://localhost:端口/logiclab npx playwright test pages.spec.ts`。
+- **完整版（含 AI 助教）**：需要 Node.js 服务端（如 Vercel 或自己的服务器），`npm run build && npm run start`。
 
 ## 启用 AI 助教
 

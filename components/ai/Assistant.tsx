@@ -21,11 +21,14 @@ const SUGGEST: Record<string, string[]> = {
   default: ["化简 Y = AB + A'C + BC，并解释每一步依据", "JK 触发器和 D 触发器怎么互相转换？", "Moore 型和 Mealy 型的输出时刻有什么不同？"],
 };
 
+/** 静态部署（GitHub Pages）没有服务端，不提供 AI 助教 */
+const STATIC_BUILD = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1";
+
 /** 右下角的 AI 助教抽屉。未配置 API 密钥时显示说明，网站其他功能不受影响。 */
 export function Assistant() {
   const path = usePathname();
   const { ctx, open, setOpen, draft, setDraft } = useAssistant();
-  const [status, setStatus] = useState<"unknown" | "on" | "off">("unknown");
+  const [status, setStatus] = useState<"unknown" | "on" | "off">(STATIC_BUILD ? "off" : "unknown");
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
   const abort = useRef<AbortController | null>(null);
@@ -126,7 +129,13 @@ export function Assistant() {
             {status === "off" && (
               <div className="card-inset p-3 text-xs leading-relaxed text-ink-2 space-y-1.5">
                 <p className="text-ink font-semibold">AI 助教尚未启用</p>
-                <p>需要在部署网站的服务器上设置环境变量 ANTHROPIC_API_KEY（密钥只保存在服务端，不会发到浏览器）。课程、实验、练习等其他功能都不依赖它。</p>
+                {STATIC_BUILD ? (
+                  <p>
+                    这是部署在 GitHub Pages 上的静态版本，没有服务端，因此不提供 AI 助教。在本地运行（npm run dev）或部署到支持服务端的平台，并在服务端设置 ANTHROPIC_API_KEY 后即可使用。课程、实验、练习等其他功能都在浏览器中运行，不受影响。
+                  </p>
+                ) : (
+                  <p>需要在部署网站的服务器上设置环境变量 ANTHROPIC_API_KEY（密钥只保存在服务端，不会发到浏览器）。课程、实验、练习等其他功能都不依赖它。</p>
+                )}
               </div>
             )}
             {msgs.length === 0 && (
